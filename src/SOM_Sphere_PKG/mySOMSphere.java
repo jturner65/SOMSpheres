@@ -118,8 +118,6 @@ public class mySOMSphere {
 			pa.popStyle();pa.popMatrix();
 		}
 		pa.popStyle();pa.popMatrix();
-		
-		
 	}
 	
 	//returns ara of coords to be used as training features for som

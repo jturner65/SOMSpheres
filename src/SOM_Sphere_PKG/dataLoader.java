@@ -41,8 +41,10 @@ public class dataLoader implements Runnable {
 			boolean success = (getFlag(isCMUMocapIDX) ? execCMUDataLoad() : execSphereDataLoad()) ;
 			map.setFlag(SOMMapData.dataLoadedIDX,success);
 			map.setFlag(SOMMapData.loaderRtnIDX,true);
+			p.setCurSphrMapMade();//tell anim res window that map is made and data is loaded
 			map.setMapImgClrs();
 			p.pr("Finished data loader : data Loaded : " + map.getFlag(SOMMapData.dataLoadedIDX) + " | loader ret code : " +map.getFlag(SOMMapData.loaderRtnIDX) );
+			
 		}
 		else {
 			map.setFlag(SOMMapData.loaderRtnIDX,false);
@@ -356,11 +358,12 @@ public class dataLoader implements Runnable {
 				perClassRes.put(key, tmpAra);
 			}						
 		}
-		p.saveStrings(fnames.getCSVSvFName(0,0), stringRes);  //fnames.getSvFName(0,0);
-		p.saveStrings(fnames.getCSVSvFName(1,0), brfStringRes);
-		p.saveStrings(fnames.getCSVSvFName(2,0), sparseStringRes);
+		String sfx = "_useAll_" + "1";//p.useAllMmnts;	
+		p.saveStrings(fnames.getCSVSvFName(0,0, sfx), stringRes);  //fnames.getSvFName(0,0);
+		p.saveStrings(fnames.getCSVSvFName(1,0, sfx), brfStringRes);
+		p.saveStrings(fnames.getCSVSvFName(2,0, sfx), sparseStringRes);
 		for (Integer key : perClassRes.keySet()){
-			String tmpFileName = fnames.getCSVSvFName(3,key);
+			String tmpFileName = fnames.getCSVSvFName(3,key, sfx);
 			p.saveStrings(tmpFileName, perClassRes.get(key));
 		}
 		p.pr("Done with saveCSVTrainingClasses : saving training data classification files built from map's training data");		
@@ -409,8 +412,9 @@ class sphereLoader implements Runnable {
 		}	
 		pa.outStr2Scr("************* Spheres generated **********************");
 		pa.setSphereLRNFileName(win.numSpheres, win.numSmplPoints, win.maxSphRad);
-		win.setPrivFlags(win.sphereDataLoadedIDX, true);
-		win.setPrivFlags(win.currSphrDatSavedIDX, false);
+		win.setPrivFlags(win.sphereDataLoadedIDX, true); 		//sheres are made
+		win.setPrivFlags(win.mapBuiltToCurSphrsIDX, false);  	//current map is now out of sync
+		win.setPrivFlags(win.currSphrDatSavedIDX, false);   	//current spheres have not been saved to file
 	}
 }//sphereLoader class
 

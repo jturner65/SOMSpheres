@@ -20,6 +20,8 @@ public class SOMMapData {
 	//description of somoclu exe params
 	public somocluDat SOMExeDat;
 	
+	public TreeMap<Float,ArrayList<Tuple<Integer,Integer>>> MapSqMagToFtrs;		//precalculate the squared sum of all ftrs to facilitate lookup for locations of points on map
+	
 	//all nodes of som map, keyed by node location
 	public TreeMap<Tuple<Integer,Integer>, SOMmapNode> MapNodes;
 	//keyed by field used in lrn file (float rep of individual record, 
@@ -128,6 +130,7 @@ public class SOMMapData {
 	 */
 	//(String _classFName, String _dFN, String _mnFN, String _trainDataFName, String _somResBaseFName, String _somCSVBaseFName){
 	public void loadData(String cFN, String diffsFN, String minsFN, String somTrainFN, String somResFPrfx, String _csvOutBaseFName, boolean isCMUData){
+		initData();			
 		setFlag(loaderRtnIDX, false);
 		fnames = new SOMDatFileConfig(p,this);
 		fnames.setAllFileNames(cFN,diffsFN,minsFN, somTrainFN, somResFPrfx, _csvOutBaseFName);
@@ -135,10 +138,12 @@ public class SOMMapData {
 		p.th_exec.execute(new dataLoader(p,this,win.getPrivFlags(win.mapLoadFtrBMUsIDX),fnames,isCMUData));//fire and forget load task to load		
 	}
 	//load initial som data and results from cmu dataset
-	public void setAndInitLoadCMUData(){
+	public void setAndInitLoadCMUData(int idx, boolean loadCMU){
 		initData();			//String trainDataFName, String somResBaseFName,
-		loadData(p.CMUclassFileName, p.mSOMSrcDiffsAra[p.useAllMmnts],p.mSOMSrcMinsAra[p.useAllMmnts],
-				p.mSOMSrcFileAra[p.useAllMmnts], p.mSOMResFileAra[p.useAllMmnts], p.MmntSOMSrcDir, true);
+		if(loadCMU){
+//			loadData(p.CMUclassFileName, p.mSOMSrcDiffsAra[idx],p.mSOMSrcMinsAra[idx],
+//					p.mSOMSrcFileAra[idx], p.mSOMResFileAra[idx], p.MmntSOMSrcDir, true);
+		}
 	}//load initial file data
 	
 	public void initData(){
@@ -312,6 +317,14 @@ public class SOMMapData {
 		}
 		mapRndClrImg.updatePixels();
 	}//setMapImgClrs
+	
+	//get pxl location in map that is closest to passed data point
+	public Tuple<Integer,Integer> getSmplLoc(dataPoint dp){
+		//go through every map node, find closest nodes to datapoint, look around their neighborhoods
+		
+		Tuple<Integer,Integer> res = new Tuple<Integer,Integer>(0,0);
+		return res;
+	}//getSmplLoc
 	
 	//return a color for a location, where a color is an int array of the first 3 scaled features of the interpolated map nodes
 	private int getDataClrAtLoc(float x, float y){
@@ -609,6 +622,10 @@ class dataPoint{
 		p.popStyle();p.popMatrix();		
 	}//drawLabel
 	
+//	//return location of unscaled features in 3D space
+//	public float[] get3dLoc(){
+//		
+//	}
 	
 	public String toCSVString(){
 		String res = ""+seqNum+",";

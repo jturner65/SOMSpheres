@@ -28,9 +28,11 @@ public class mySOMAnimResWin extends myDispWindow {
 			useSmplLocAsClrIDX  = 6,				//use all locations of samples as their colors, instead of sphere ctr's location
 			showSphereIdIDX		= 7,				//display the sphere's ID as a text tag
 			showSelSphereIDX	= 8,				//highlight the sphere with the selected idx
-			useSmplsForTrainIDX = 9;				//use surface samples, or sphere centers, for training data
+			useSmplsForTrainIDX = 9,				//use surface samples, or sphere centers, for training data
+			showMapBasedLocsIDX = 10,				//show map-derived locations of training data instead of actual locations (or along with?)
+			mapBuiltToCurSphrsIDX = 11;				//the current sphere configuration has an underlying map built to it
 	
-	public static final int numPrivFlags = 10;
+	public static final int numPrivFlags = 12;
 	
 	//represented random spheres
 	public mySOMSphere[] spheres;
@@ -58,14 +60,16 @@ public class mySOMAnimResWin extends myDispWindow {
 	//initialize all private-flag based UI buttons here - called by base class
 	public void initAllPrivBtns(){
 		truePrivFlagNames = new String[]{								//needs to be in order of privModFlgIdxs
-				"Turn off sphere debugging", "Show Spheres","Hide Sphere Labels", "Using Sphere Loc As Color", "Using Sample Loc As Color", "Hide Selected Sphere", 
-				"Use Sphere Samples For Train", "Saving Sphere Train/Test Data"
+				"Debugging Spheres", "Show Spheres","Showing Maps Locs", "Hide Labels", "Loc as Clr of Sphere", "Samples: Loc As Color", "Sel Sphere HiLite", 
+				"Samples As Train",  "Save Data"
 		};
 		falsePrivFlagNames = new String[]{			//needs to be in order of flags
-				"Turn on sphere debugging", "Show Sample Pts","Show Sphere Labels","Using Random Color for Sphere", "Using Sphere Color as Sample Color", "Highlight Selected Sphere", 
-				"Use Sphere Centers For Train", "Save Sphere Train/Test Data"
+				"Debug Spheres", "Show Sample Pts","Showing Actual Locs","Show Labels","Rand Color for Sphere", "Samples: Sphr Color As Color", "HiLite Off", 
+				"Centers As Train", "Save Data"
 		};
-		privModFlgIdxs = new int[]{debugAnimIDX, showSamplePntsIDX,showSphereIdIDX, useSphrLocAsClrIDX, useSmplLocAsClrIDX, showSelSphereIDX,useSmplsForTrainIDX, saveSphereDataIDX};
+		privModFlgIdxs = new int[]{debugAnimIDX, showSamplePntsIDX,showMapBasedLocsIDX,showSphereIdIDX, 
+				useSphrLocAsClrIDX, useSmplLocAsClrIDX, showSelSphereIDX, 
+				useSmplsForTrainIDX, saveSphereDataIDX};
 		numClickBools = privModFlgIdxs.length;	
 		initPrivBtnRects(0,numClickBools);
 	}//initAllPrivBtns
@@ -76,7 +80,6 @@ public class mySOMAnimResWin extends myDispWindow {
 		dispFlags[trajDecays] = true;								//this window responds to travelling reticle/playing
 		curTrajAraIDX = 0;		
 		initPrivFlags(numPrivFlags);		
-		//pa.th_exec.execute(new sphereLoader(pa, this));		//fire and forget load of spheres - INITIAL MOVED TO MAIN SETUP
 	}
 
 	
@@ -94,12 +97,13 @@ public class mySOMAnimResWin extends myDispWindow {
 			case sphereDataLoadedIDX 	: {	break;}		//sphere data has been loaded				
 			case showSamplePntsIDX 		: {	break;}		//show sphere as sample points or as sphere
 			case saveSphereDataIDX 		: { break;}		//save all sphere centers, colors and IDs as training data/classes, and sample point locs, IDs and clrs as validation data
-			case currSphrDatSavedIDX 	: 	{if(val){pa.outStr2Scr("Current Sphere data saved"); } break;}
+			case currSphrDatSavedIDX 	: {if(val){pa.outStr2Scr("Current Sphere data saved"); } break;}
 			case showSphereIdIDX  		: { break;}//show labels for spheres
 			case useSphrLocAsClrIDX 	: { break;}		//color of spheres is location or is random
 			case useSmplLocAsClrIDX 	: { break;}		//color of samples is location or current sphere's color (either its location or random color)
 			case showSelSphereIDX 		: { break;}
 			case useSmplsForTrainIDX	: {break;}		//use surface samples for train and centers for test, or vice versa
+			case mapBuiltToCurSphrsIDX  : {break;}     //whether map has been built and loaded for current config of spheres
 		}		
 	}//setPrivFlags		
 	
@@ -201,29 +205,38 @@ public class mySOMAnimResWin extends myDispWindow {
 	}//drawTraj3D
 	@Override
 	protected void drawMe(float animTimeMod) {
-		curMseLookVec = pa.c.getMse2DtoMse3DinWorld(pa.sceneCtrVals[pa.sceneIDX]);			//need to be here
-		curMseLoc3D = pa.c.getMseLoc(pa.sceneCtrVals[pa.sceneIDX]);
+//		curMseLookVec = pa.c.getMse2DtoMse3DinWorld(pa.sceneCtrVals[pa.sceneIDX]);			//need to be here
+//		curMseLoc3D = pa.c.getMseLoc(pa.sceneCtrVals[pa.sceneIDX]);
 		//pa.outStr2Scr("Current mouse loc in 3D : " + curMseLoc3D.toStrBrf() + "| scenectrvals : " + pa.sceneCtrVals[pa.sceneIDX].toStrBrf() +"| current look-at vector from mouse point : " + curMseLookVec.toStrBrf());
-		pa.pushMatrix();pa.pushStyle();//nested shenannigans to get rid of if checks in each individual draw
+		pa.pushMatrix();pa.pushStyle();//nested ifthen shenannigans to get rid of if checks in each individual draw
 		if(getPrivFlags(sphereDataLoadedIDX)){ 	
-			if(getPrivFlags(useSphrLocAsClrIDX)){
-				if(getPrivFlags(showSamplePntsIDX)){  //useSmplLocAsClrIDX
-					if(getPrivFlags(useSmplLocAsClrIDX)){	for(mySOMSphere s : spheres){s.drawMeSmplsClrSmplLoc();}} 
-					else{									for(mySOMSphere s : spheres){s.drawMeSmplsClrLoc();}}
-				} else {					for(mySOMSphere s : spheres){s.drawMeClrLoc();}}
+			if(getPrivFlags(showMapBasedLocsIDX)){		
+				if (getPrivFlags(mapBuiltToCurSphrsIDX)){//show all spheres/samples based on map-derived locations if selected and map is made
+					//draw spheres/samples based on map info - use 1st 3 features of non-scaled ftr data
+					
+					
+				
+				} else {										setPrivFlags(showMapBasedLocsIDX, false);	}	//turn off flag
 			} else {
-				if(getPrivFlags(showSamplePntsIDX)){
-					if(getPrivFlags(useSmplLocAsClrIDX)){	for(mySOMSphere s : spheres){s.drawMeSmplsClrSmplLoc();}} 
-					else{									for(mySOMSphere s : spheres){s.drawMeSmplsClrRnd();}}
-				} else {					for(mySOMSphere s : spheres){s.drawMeClrRnd();}}
-			}
-			//drawMeLabel()
-			if(getPrivFlags(showSphereIdIDX)){for(mySOMSphere s : spheres){s.drawMeLabel();}	}
-			if(getPrivFlags(showSelSphereIDX)){spheres[curSelSphereIDX].drawMeSelected(animTimeMod);     }
-	}
+				
+				if(getPrivFlags(useSphrLocAsClrIDX)){
+					if(getPrivFlags(showSamplePntsIDX)){  //useSmplLocAsClrIDX
+						if(getPrivFlags(useSmplLocAsClrIDX)){	for(mySOMSphere s : spheres){s.drawMeSmplsClrSmplLoc();}} 
+						else{									for(mySOMSphere s : spheres){s.drawMeSmplsClrLoc();}}
+					} else {									for(mySOMSphere s : spheres){s.drawMeClrLoc();}}
+				} else {
+					if(getPrivFlags(showSamplePntsIDX)){
+						if(getPrivFlags(useSmplLocAsClrIDX)){	for(mySOMSphere s : spheres){s.drawMeSmplsClrSmplLoc();}} 
+						else{									for(mySOMSphere s : spheres){s.drawMeSmplsClrRnd();}}
+					} else {									for(mySOMSphere s : spheres){s.drawMeClrRnd();}}
+				}
+				if(getPrivFlags(showSphereIdIDX)){				for(mySOMSphere s : spheres){s.drawMeLabel();}	}
+				if(getPrivFlags(showSelSphereIDX)){				spheres[curSelSphereIDX].drawMeSelected(animTimeMod);     }
+			}//use locs or map-locs
+		}
 		pa.popStyle();pa.popMatrix();
 		if(getPrivFlags(saveSphereDataIDX)){saveSphereInfo();	setPrivFlags(saveSphereDataIDX, false);	}
-	}
+	}//drawMe
 	
 	@Override
 	protected void playMe() {	}//only called 1 time

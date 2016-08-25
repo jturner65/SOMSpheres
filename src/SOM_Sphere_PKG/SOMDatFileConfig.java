@@ -71,8 +71,7 @@ public class SOMDatFileConfig {
 	
 	//return the appropriate file name based on the type of file being saved
 	//_arg1 for file names with extra info, such as per-class data where the class is included in file name
-	public String getCSVSvFName(int _typ, int _arg1){ 
-		String sfx = "_useAll_" + p.useAllMmnts;		
+	public String getCSVSvFName(int _typ, int _arg1, String sfx){ 	
 		switch(_typ){
 			case 0 : {return (fnames[csvSavFNameIDX] + "ScaledData_Classes" + sfx + ".csv");}//trainClassDataFName -> like MmntSOMSrcDir+"ScaledHeadData_Classes_useAll_0.csv"
 			case 1 : {return (fnames[csvSavFNameIDX] + "ListClasses" + sfx + ".csv");}//trainClassDataFName -> like MmntSOMSrcDir+"ListClasses_useAll_0.csv"

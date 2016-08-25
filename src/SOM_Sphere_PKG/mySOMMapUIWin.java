@@ -7,7 +7,7 @@ public class mySOMMapUIWin extends myDispWindow {
 	public SOMMapData SOM_Data;
 	
 	public static final int 
-		buildSOMExe 			= 0,			//drawn trajectory edits something
+		buildSOMExe 			= 0,			//command to initiate SOM-building
 		resetMapDefsIDX			= 1,			//reset default UI values for map
 		mapDataLoadedIDX		= 2,			//whether map has been loaded or not	
 		mapLoadFtrBMUsIDX 		= 3,			//whether or not to load the best matching units for each feature - this is a large construct so load only if necessary
@@ -63,35 +63,33 @@ public class mySOMMapUIWin extends myDispWindow {
 	//initialize all private-flag based UI buttons here - called by base class
 	public void initAllPrivBtns(){
 		truePrivFlagNames = new String[]{								//needs to be in order of flags
-				"Building SOM", "Resetting Def Vals", "Loading Feature Best Matching Units",
+				"Building SOM", "Resetting Def Vals", "Loading Feature BMUs",
 				"Using Scaled Ftrs For Dist Calc","Using ChiSq for Ftr Distance",
-				"Assuming Unshared Ftrs are 0",	"Hide Train Data",
+				"Unshared Ftrs are 0",	"Hide Train Data",
 				"Hide Train Lbls",	"Hide Pop Map Nodes",	
-				"Hide Map Nodes", "Show map w/o ftr color"
+				"Hide Map Nodes", "Showing Ftr Clr"
 		};
 		falsePrivFlagNames = new String[]{			//needs to be in order of flags
 				"Build New Map ","Reset Def Vals","Not Loading Feature BMUs",
 				"Using Unscaled Ftrs For Dist Calc","Not Using ChiSq Distance",
-				"Ignoring Unshared Features","Show Train Data",
+				"Ignoring Unshared Ftrs","Show Train Data",
 				"Show Train Lbls",	"Show Pop Map Nodes",
-				"Show Map Nodes", "Use color to show ftrs"
+				"Show Map Nodes", "Not Showing Ftr Clr"
 		};
 		privModFlgIdxs = new int[]{buildSOMExe, resetMapDefsIDX, mapLoadFtrBMUsIDX,mapUseSclFtrDistIDX,
 				mapUseChiSqDistIDX,mapSetSmFtrZeroIDX,mapDrawTrainDatIDX,mapDrawTrDatLblIDX,mapDrawMapNodesIDX,mapDrawAllMapNodesIDX,mapShowLocClrIDX};
 		numClickBools = privModFlgIdxs.length;	
 		//maybe have call for 		initPrivBtnRects(0);	
 		initPrivBtnRects(0,numClickBools);
-	}
+	}//initAllPrivBtns
 
 	protected void initMe() {
 		initUIBox();				//set up ui click region to be in sidebar menu below menu's entries	
 		float offset = 20;
-		//need this square
-		float width = rectDim[3]-(2*offset),//actually height, but want it square, and space is wider than high, so we use height as constraint
+		float width = rectDim[3]-(2*offset),//actually height, but want it square, and space is wider than high, so we use height as constraint - ends up being 834.8 x 834.8 with default screen dims
 		xStart = rectDim[0] + .5f*(rectDim[2] - width);
 		
 		dispFlags[canDrawTraj] = true;			//to edit instrument qualities need to use drawn trajectories		
-//		dispFlags[uiObjsAreVert] = true;
 		//init specific sim flags
 		initPrivFlags(numPrivFlags);			
 		setPrivFlags(mapLoadFtrBMUsIDX,true);
@@ -99,8 +97,6 @@ public class mySOMMapUIWin extends myDispWindow {
 		setPrivFlags(mapDrawMapNodesIDX,true);
 		setPrivFlags(mapUseChiSqDistIDX,true);
 		SOM_Data = new SOMMapData(pa, this, new float[]{xStart, rectDim[1] + offset, width, width});
-		//load init data for CMU mocap data here --CHANGED TO CALLED IN MAIN AFTER ALL WINDOWS MADE
-		//SOM_Data.setAndInitLoadCMUData();
 	}//initMe
 	
 	@Override
@@ -164,7 +160,7 @@ public class mySOMMapUIWin extends myDispWindow {
 		for(int i=0; i<intAra.length;++i){
 			pa.outStr2Scr("intAra["+i+"] = "+intAra[i]);
 		}
-
+		//structure holding somoclu specific cmd line args and file names and such
 		somocluDat SOMExecDat = new somocluDat(pa, 
 				intAra,
 				new float[]{
@@ -179,6 +175,7 @@ public class mySOMMapUIWin extends myDispWindow {
 					getUIListValStr(uiMapLrnCoolIDX, (int)this.guiObjs[uiMapLrnCoolIDX].getVal())	
 				}, lrnFileName,  outFilePrfx);
 		pa.outStr2Scr("Som map descriptor : " + SOMExecDat + " exec str : " + SOMExecDat.execString());
+		//launch in a thread?
 		SOM_Data.buildNewMap(SOMExecDat);
 		//now load new map data and configure SOMMapData obj to hold all appropriate data
 		//TODO need to specify class file name		
@@ -350,7 +347,8 @@ public class mySOMMapUIWin extends myDispWindow {
 	//handle mouseover 
 	@Override
 	protected boolean hndlMouseMoveIndiv(int mouseX, int mouseY, myPoint mseClckInWorld){
-		boolean res = SOM_Data.chkMouseOvr(mouseX, mouseY);
+		boolean res = false;
+		if(getPrivFlags(mapDataLoadedIDX)){ res = SOM_Data.chkMouseOvr(mouseX, mouseY);	}
 		return res;
 	}	
 	@Override

@@ -25,7 +25,7 @@ import processing.opengl.*;
 		//platform independent path separator
 		public String dirSep = File.separator;
 		
-		public String CMUBaseDataDir = "E:/Research/Summer 2016/MS head model research/";		
+//		public String CMUBaseDataDir = "E:/Research/Summer 2016/MS head model research/";		
 				
 		public String exeDir = Paths.get("").toAbsolutePath().toString();
 		//base directory to write output from spheres/samples and from som analysis
@@ -34,22 +34,22 @@ import processing.opengl.*;
 		//NOTE this program uses a modified version of the somoclu library, modified to also build a file holding the per-feature best nodes
 		public String SOM_Dir = BaseWriteDir;
 		
-		//build classifications and SOM maps of CMU mocap clips
-		//class file data was from website and may not align with data used - seems some clips and subjects may be missing
-		public String CMUclassFileName = CMUBaseDataDir + "SubjectsAndMotions.txt";
-		public String outFileName = CMUBaseDataDir + "subjMotionClass.csv";
+//		//build classifications and SOM maps of CMU mocap clips
+//		//class file data was from website and may not align with data used - seems some clips and subjects may be missing
+//		public String CMUclassFileName = CMUBaseDataDir + "SubjectsAndMotions.txt";
+//		public String outFileName = CMUBaseDataDir + "subjMotionClass.csv";
+//		
+//		//analyze mocap moments SOM results - file name MmntsHeadData_useAll_1_100_out_2548.bm
+//		public String MmntSOMResDir = CMUBaseDataDir + "MatlabResData/MocapHeadTreeAnalysis/SOM_MmntsData/SOM_results/";
+//		//base location in mocap data to save various formatted training data label csvs
+//		public String MmntSOMSrcDir = CMUBaseDataDir + "MatlabResData/MocapHeadTreeAnalysis/SOM_MmntsData/SourceData/";
 		
-		//analyze mocap moments SOM results - file name MmntsHeadData_useAll_1_100_out_2548.bm
-		public String MmntSOMResDir = CMUBaseDataDir + "MatlabResData/MocapHeadTreeAnalysis/SOM_MmntsData/SOM_results/";
-		//base location in mocap data to save various formatted training data label csvs
-		public String MmntSOMSrcDir = CMUBaseDataDir + "MatlabResData/MocapHeadTreeAnalysis/SOM_MmntsData/SourceData/";
-		
-		//TODO replace with generated names
-		public String[] mSOMResFileAra = new String[]{(MmntSOMResDir+"MmntsHeadData_useAll_0_100_out_2548"),(MmntSOMResDir+"MmntsHeadData_useAll_1_100_out_2548")},
-				mSOMSrcFileAra = new String[]{MmntSOMSrcDir+"ScaledHeadMtxData_useAll_0.csv",MmntSOMSrcDir+"ScaledHeadMtxData_useAll_1.csv"},
-				mSOMSrcMinsAra = new String[]{MmntSOMSrcDir+"ScaledHeadMtxData_mins_0.csv",MmntSOMSrcDir+"ScaledHeadMtxData_mins_1.csv"},
-				mSOMSrcDiffsAra = new String[]{MmntSOMSrcDir+"ScaledHeadMtxData_diffs_0.csv",MmntSOMSrcDir+"ScaledHeadMtxData_diffs_1.csv"};	
-		public int useAllMmnts = 1;		//0 uses only MOM results, 1 uses both mean/var/skew/kurt and MOM	
+//		//TODO replace with generated names
+//		public String[] mSOMResFileAra = new String[]{(MmntSOMResDir+"MmntsHeadData_useAll_0_100_out_2548"),(MmntSOMResDir+"MmntsHeadData_useAll_1_100_out_2548")},
+//				mSOMSrcFileAra = new String[]{MmntSOMSrcDir+"ScaledHeadMtxData_useAll_0.csv",MmntSOMSrcDir+"ScaledHeadMtxData_useAll_1.csv"},
+//				mSOMSrcMinsAra = new String[]{MmntSOMSrcDir+"ScaledHeadMtxData_mins_0.csv",MmntSOMSrcDir+"ScaledHeadMtxData_mins_1.csv"},
+//				mSOMSrcDiffsAra = new String[]{MmntSOMSrcDir+"ScaledHeadMtxData_diffs_0.csv",MmntSOMSrcDir+"ScaledHeadMtxData_diffs_1.csv"};	
+//		public int useAllMmnts = 1;		//0 uses only MOM results, 1 uses both mean/var/skew/kurt and MOM	
 				
 		//holds training data
 		public boolean init = false;
@@ -389,7 +389,7 @@ import processing.opengl.*;
 				dispWinFrames[i].setTrajColors(winTrajFillClrs[i], winTrajStrkClrs[i]);
 			}				
 			//load initial map data in mySOMMapUIWin
-			((mySOMMapUIWin)(dispWinFrames[dispSOMMapIDX])).SOM_Data.setAndInitLoadCMUData();	
+			//((mySOMMapUIWin)(dispWinFrames[dispSOMMapIDX])).SOM_Data.setAndInitLoadCMUData();	
 			//assign refs - equate SOM refs in both windows
 			((mySOMAnimResWin)(dispWinFrames[dispAnimResIDX])).SOMSpheres_Data = ((mySOMMapUIWin)(dispWinFrames[dispSOMMapIDX])).SOM_Data;	
 			//load initial spheres
@@ -432,6 +432,8 @@ import processing.opengl.*;
 		public String getSOMLocClrImgFName(){	return sphereSOMLrnFN[5];}
 		
 		public boolean curSphereDatSaved(){	return dispWinFrames[dispAnimResIDX].getPrivFlags(mySOMAnimResWin.currSphrDatSavedIDX);	}
+		//let anim res window know that map has been made for current sphere configuration
+		public void setCurSphrMapMade(){dispWinFrames[dispAnimResIDX].setPrivFlags(mySOMAnimResWin.mapBuiltToCurSphrsIDX, true);}
 		
 		
 		public dataPoint[] getSphrWinTrainData(){return ((mySOMAnimResWin)dispWinFrames[dispAnimResIDX]).sphereTrainData;}
