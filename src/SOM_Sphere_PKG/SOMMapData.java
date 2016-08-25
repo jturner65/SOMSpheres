@@ -181,16 +181,8 @@ public class SOMMapData {
 		if(win.getPrivFlags(win.mapDrawMapNodesIDX)){
 			p.pushMatrix();p.pushStyle();
 			p.setFill(dpFillClr);p.setStroke(dpStkClr);
-			if(win.getPrivFlags(win.mapDrawAllMapNodesIDX)){
-				for(SOMmapNode node : MapNodes.values()){
-					//node.drawMeMap();
-					node.drawMeSmallBk();
-				}
-			} else {										
-				for(SOMmapNode node : nodesWithEx){
-					node.drawMeMap();
-				}
-			}
+			if(win.getPrivFlags(win.mapDrawAllMapNodesIDX)){		for(SOMmapNode node : MapNodes.values()){	node.drawMeSmallBk();	}} 
+			else {												for(SOMmapNode node : nodesWithEx){			node.drawMeMap();}}
 			p.popStyle();p.popMatrix();
 		}
 		p.popStyle();p.popMatrix();
@@ -474,7 +466,8 @@ class dataPoint{
 	public SOM_SphereMain p;
 	public SOMMapData map;			//owning map
 	public float[] ftrs,			//feature data for data point - not scaled
-					scFtrs;			//scaled feature data to be 0-1
+					scFtrs,			//scaled feature data to be 0-1 - based on min/max value of individual feature across all examples
+					normFtrs;		//mag of ftr vec == 1
 	public int seqNum, numFtrs;		//sequence of data point in list of data, # of features for this data point
 	public String texID;		//this datapoint's unique identifier, used in 1st column of .lrn file's dense format (ignored by som).  "" denotes none; label is the classification of this data point
 	public boolean wasBuiltScaled, makeClrAra;
@@ -492,10 +485,11 @@ class dataPoint{
 		map=_map;p=_p;
 		seqNum = _seq;			
 		wasBuiltScaled = _wasBuiltScaled;
+		makeClrAra = _makeClrAra;
 		//duplicate features now, will modify to be scaled/unscaled depending on data and whether mins&diffs exist for map
 		label = null;
 		if(_ftrs.length != 0){	
-			setFtrsFromFloatAra(_ftrs,new boolean[]{_skipFirstFtr,_makeClrAra} );
+			setFtrsFromFloatAra(_ftrs,_skipFirstFtr );
 		}	
 		mapLoc = new myPointf();		
 		if(label==null){label = new dataClass(map,seqNum,0,"Uninited label","Uninited Description", null);}
@@ -514,7 +508,7 @@ class dataPoint{
 	//this is if reading a lrn-formatted file, where the first feature will be the label of the example
 	public dataPoint(SOM_SphereMain _p, SOMMapData _map, String [] _tkns, boolean _isScaled, int _seq, boolean _skipFirstFtr, boolean _makeClrAra ){
 		this(_p,_map, new float[0],_isScaled,_seq,_skipFirstFtr,_makeClrAra);
-		if(_tkns.length != 0){	setFtrsFromStrAra(_tkns, new boolean[]{_skipFirstFtr,_makeClrAra} );	}
+		if(_tkns.length != 0){	setFtrsFromStrAra(_tkns, _skipFirstFtr );	}
 	}//ctor
 	
 	//return the subject/1st part of the per-example key (texID) as an integer => -1 means none
@@ -526,28 +520,33 @@ class dataPoint{
 	public void setLabel(dataClass _lbl){label=_lbl; texID = label.lrnKey;}
 	public dataClass getLabel(){return label;}
 	
-	public void setFtrsFromFloatAra(float [] _ftrs,boolean[] _flags){
-		int stIDX = _flags[0] ? 1 : 0;
+	public void setFtrsFromFloatAra(float [] _ftrs,boolean _skipFirstFtr){
+		int stIDX = _skipFirstFtr ? 1 : 0;
 		numFtrs = _ftrs.length - stIDX;
 		ftrs = new float[numFtrs];
 		System.arraycopy(_ftrs, stIDX, ftrs, 0, numFtrs);	
-		setFtrsEnd((_flags[0] ? String.format("%3.3e", _ftrs[0]) : ""), stIDX,_flags);
+		setFtrsEnd((_skipFirstFtr ? String.format("%3.3e", _ftrs[0]) : ""), stIDX,_skipFirstFtr);
 	}
-	public void setFtrsFromStrAra(String [] tkns,boolean[] _flags){
-		int stIDX = _flags[0] ? 1 : 0;
+	public void setFtrsFromStrAra(String [] tkns,boolean _skipFirstFtr){
+		int stIDX = _skipFirstFtr ? 1 : 0;
 		numFtrs = tkns.length - stIDX;
 		ftrs = new float[numFtrs];
 		for(int i = stIDX; i < tkns.length; i++) {	ftrs[i-stIDX] = Float.parseFloat(tkns[i]);}
-		setFtrsEnd((_flags[0] ? dataClass.getPrfxFromData(tkns[0]) : ""),0,_flags);
+		setFtrsEnd((_skipFirstFtr ? dataClass.getPrfxFromData(tkns[0]) : ""),0,_skipFirstFtr);
 	}
 	
-	private void setFtrsEnd(String _texID,int stIDX, boolean[] _flags){
+	private void setFtrsEnd(String _texID,int stIDX, boolean _skipFirstFtr){
 		scFtrs = new float[numFtrs];	
+		normFtrs = new float[numFtrs];
+		//set them the same, then normalize scFtrs
 		System.arraycopy(ftrs, stIDX, scFtrs, 0, numFtrs);	
+		System.arraycopy(ftrs, stIDX, normFtrs, 0, numFtrs);	
+		buildNormFtrs();
 		texID = _texID;
-		if(_flags[0] && (null != map.TrainDataLabels.get(texID))){label = map.TrainDataLabels.get(texID);}
-		worldLoc = new myPointf(ftrs[stIDX],ftrs[stIDX+1],ftrs[stIDX+2]);
-		if(_flags[1]){locClrs = p.getClrFromCubeLoc(worldLoc.asArray());}				
+		if(_skipFirstFtr && (null != map.TrainDataLabels.get(texID))){label = map.TrainDataLabels.get(texID);}
+		if(!this.wasBuiltScaled){	worldLoc = new myPointf(ftrs[stIDX],ftrs[stIDX+1],ftrs[stIDX+2]);}		//onlycorrect if getting feature values are not scaled (i.e. coming from 3d cube)
+		else {						worldLoc = new myPointf();}												//use normalized feature to build a world loc
+		if(makeClrAra){locClrs = p.getClrFromCubeLoc(worldLoc.asArray());}				
 	}
 
 	//return an array of features multiplied by passed constant
@@ -576,21 +575,36 @@ class dataPoint{
 		float dist = map.dpDistFunc(_n, this,dataVar);
 		_n.addBMUExample(dist, this);
 	}//setBMU
-	
+	//verify features expected to be normalized are normalized
+	private void buildNormFtrs(){
+		float sum = 0;
+		for(int i=0;i<normFtrs.length;++i){	sum += normFtrs[i];}
+		if(sum==0){return;}
+		for(int i=0;i<normFtrs.length;++i){	normFtrs[i] /= sum;}		
+	}
 	//based on whether the features fed to this data point where scaled or not, calculate the other (eithe scaled or not scaled) data
-	public void setCorrectScaling(){if(wasBuiltScaled){calcDeScaledFtrs();} else {calcScaledFtrs();}}	
+	public void setCorrectScaling(){if(wasBuiltScaled){
+		calcDeScaledFtrs();
+		calcWorldLoc();
+		if(makeClrAra){locClrs = p.getClrFromCubeLoc(worldLoc.asArray());}
+	} else {calcScaledFtrs();}}	
 	//modify scaled features to be scaled by owning map's constants (assumes ftrs are correctly raw)//subtract min values, divide by diff values
 	private void calcScaledFtrs(){for(int i=0; i<scFtrs.length;++i){scFtrs[i] = ((ftrs[i] - map.minsVals[i])/map.diffsVals[i]);}}
 	//modify regular features to be de-scaled by owning map's constants (assumes scaledFtrs are correctly scaled)
 	private void calcDeScaledFtrs(){for(int i=0; i<scFtrs.length;++i){ftrs[i] = ((scFtrs[i] * map.diffsVals[i]) + map.minsVals[i]);}}
 
+	private void calcWorldLoc(){
+		float[] f=new float[3];
+		for(int i=0; i<3;++i){	f[i] = ((scFtrs[i] * map.diffsVals[i]) + map.minsVals[i]);}
+		worldLoc = new myVectorf(f[0],f[1],f[2]);
+	}
 	//if building data from spheres - pass in mins and diffs -> min coords and diff between min and max coord
 	public void setCorrectScaling(float[] min, float[] diff){if(wasBuiltScaled){calcDeScaledFtrs(min,diff);} else {calcScaledFtrs(min,diff);}}	
 	//modify scaled features to be scaled by owning map's constants (assumes ftrs are correctly raw)//subtract min values, divide by diff values
 	private void calcScaledFtrs(float[] min, float[] diff){for(int i=0; i<scFtrs.length;++i){scFtrs[i] = ((ftrs[i] - min[i])/diff[i]);}}
 	//modify regular features to be de-scaled by owning map's constants (assumes scaledFtrs are correctly scaled)
 	private void calcDeScaledFtrs(float[] min, float[] diff){for(int i=0; i<scFtrs.length;++i){ftrs[i] = ((scFtrs[i] * diff[i]) + min[i]);}}
-
+	
 	//override drawing in map nodes
 	public void drawMeMap(){
 		p.pushMatrix();p.pushStyle();
@@ -737,8 +751,6 @@ class SOMFeature{
 	public void setBMUWts(String[] _tkns){
 		if(_tkns == null){p.pr("Feature wts not found for feature : " + name + " idx : "+ fIdx);return;}
 		sortedBMUs = new TreeMap<Float,SOMmapNode>();
-		
-		
 	}
 	
 	public String toString(){

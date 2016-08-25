@@ -67,6 +67,8 @@ public class dataLoader implements Runnable {
 		System.arraycopy(tmpTrainAra, 0, map.trainData, 0, map.numTrainData);
 		System.arraycopy(tmpTestAra, 0, map.testData, 0, map.numTestData);
 		p.pr("Finished assigning Training and Testing data from sphere data -> added " + map.numTrainData + " training examples and " +map.numTestData + " testing examples");
+		//set all features and scaled features for all loaded dataPoints and SOMmapNodes - requires that all mins and diffs be loaded
+		success = condAllData();		
 		//load SOM's best matching units for training data - must be after map wts and training data has been loaded
 		success = loadSOM_BMs();
 //		//load SOM's sorted best matching units for each feature - must be after map wts and training data has been loaded
@@ -408,7 +410,8 @@ class sphereLoader implements Runnable {
 			win.sphereCtrData[i] = new dataPoint(pa,win.SOMSpheres_Data,loc.asArray(), false, i, false, true);//make color ara
 			win.sphereCtrData[i].setCorrectScaling(pa.cubeBnds[0],pa.cubeBnds[1]);
 			win.sphereCtrData[i].label = new dataClass(win.SOMSpheres_Data,win.spheres[i].ID,0,"Sphere "+ win.spheres[i].ID,"Sphere "+ win.spheres[i].ID + " loc : "+win.spheres[i].loc.toStrBrf(), win.spheres[i].clrVal);
-			System.arraycopy(win.spheres[i].smplPts, 0, win.sphereSmplData, (i*win.numSmplPoints), win.numSmplPoints);
+			win.spheres[i].dp = win.sphereCtrData[i];
+			System.arraycopy(win.spheres[i].smplPts, 0, win.sphereSmplData, (i*win.numSmplPoints), win.numSmplPoints);//shallow copy of refs
 		}	
 		pa.outStr2Scr("************* Spheres generated **********************");
 		pa.setSphereLRNFileName(win.numSpheres, win.numSmplPoints, win.maxSphRad);

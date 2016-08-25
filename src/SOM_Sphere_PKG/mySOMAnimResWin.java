@@ -212,13 +212,25 @@ public class mySOMAnimResWin extends myDispWindow {
 		if(getPrivFlags(sphereDataLoadedIDX)){ 	
 			if(getPrivFlags(showMapBasedLocsIDX)){		
 				if (getPrivFlags(mapBuiltToCurSphrsIDX)){//show all spheres/samples based on map-derived locations if selected and map is made
-					//draw spheres/samples based on map info - use 1st 3 features of non-scaled ftr data
+					//draw spheres/samples based on map info - use 1st 3 features of non-scaled ftr data from map's nodes as x-y-z 
+					if(getPrivFlags(useSphrLocAsClrIDX)){
+						if(getPrivFlags(showSamplePntsIDX)){  //useSmplLocAsClrIDX
+							if(getPrivFlags(useSmplLocAsClrIDX)){	for(mySOMSphere s : spheres){s.drawMeSmplsClrSmplLoc_BMU();}} 
+							else{									for(mySOMSphere s : spheres){s.drawMeSmplsClrLoc_BMU();}}
+						} else {									for(mySOMSphere s : spheres){s.drawMeClrLoc_BMU();}}
+					} else {
+						if(getPrivFlags(showSamplePntsIDX)){
+							if(getPrivFlags(useSmplLocAsClrIDX)){	for(mySOMSphere s : spheres){s.drawMeSmplsClrSmplLoc_BMU();}} 
+							else{									for(mySOMSphere s : spheres){s.drawMeSmplsClrRnd_BMU();}}
+						} else {									for(mySOMSphere s : spheres){s.drawMeClrRnd_BMU();}}
+					}
+					if(getPrivFlags(showSphereIdIDX)){				for(mySOMSphere s : spheres){s.drawMeLabel_BMU();}	}
+					if(getPrivFlags(showSelSphereIDX)){				spheres[curSelSphereIDX].drawMeSelected_BMU(animTimeMod);     }
 					
 					
 				
-				} else {										setPrivFlags(showMapBasedLocsIDX, false);	}	//turn off flag
-			} else {
-				
+				} else {										setPrivFlags(showMapBasedLocsIDX, false);	}	//turn off flag if not possible to draw 
+			} else {				
 				if(getPrivFlags(useSphrLocAsClrIDX)){
 					if(getPrivFlags(showSamplePntsIDX)){  //useSmplLocAsClrIDX
 						if(getPrivFlags(useSmplLocAsClrIDX)){	for(mySOMSphere s : spheres){s.drawMeSmplsClrSmplLoc();}} 
