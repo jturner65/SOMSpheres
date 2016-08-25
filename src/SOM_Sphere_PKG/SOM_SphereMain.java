@@ -50,7 +50,6 @@ import processing.opengl.*;
 				mSOMSrcMinsAra = new String[]{MmntSOMSrcDir+"ScaledHeadMtxData_mins_0.csv",MmntSOMSrcDir+"ScaledHeadMtxData_mins_1.csv"},
 				mSOMSrcDiffsAra = new String[]{MmntSOMSrcDir+"ScaledHeadMtxData_diffs_0.csv",MmntSOMSrcDir+"ScaledHeadMtxData_diffs_1.csv"};	
 		public int useAllMmnts = 1;		//0 uses only MOM results, 1 uses both mean/var/skew/kurt and MOM	
-
 				
 		//holds training data
 		public boolean init = false;
