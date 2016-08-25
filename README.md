@@ -22,7 +22,9 @@ This vid is interesting - it toggles between the spheres represented at their or
 
 https://dl.dropboxusercontent.com/u/55351229/vid1SpheresAndMapSpheres.mp4
 
+Last example (for now) : here's the results of the map trained only on samples generated on the surface of the spheres (no sphere centers).  The cool thing here is that the map learned the sphere centers just from the surface locations, which is appropriate since the sphere samples were generated evenly across the surface.  The fact that all the samples got assigned to the centers is a natural consequence of the map's tendency to cluster close elements closer (via the decaying update radius, which causes distant elements on the map (measured in map coords) to not be moved closer to any updating node in each update as often as closer elements are).  The better sphere centers are probably just a consequence of having 200x more data.
 
+https://dl.dropboxusercontent.com/u/55351229/smplsAndMapSmpls.mp4
 
 
 
