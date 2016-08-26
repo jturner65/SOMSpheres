@@ -154,8 +154,8 @@ public abstract class myDispWindow {
 	}
 	
 	//calculate button length
-	private static final float ltrLen = 6.2f;private static final int btnStep = 8;
-	private float calcBtnLength(String tStr, String fStr){return btnStep * ((int)((PApplet.max(tStr.length(),fStr.length()) + 4) * ltrLen)/btnStep);}
+	private static final float ltrLen = 6.0f;private static final int btnStep = 6;
+	private float calcBtnLength(String tStr, String fStr){return btnStep * (int)(((PApplet.max(tStr.length(),fStr.length())+4) * ltrLen)/btnStep);}
 	//set up child class button rectangles TODO
 	//yDisp is displacement for button to be drawn
 	protected void initPrivBtnRects(float yDisp, int numBtns){
@@ -164,7 +164,7 @@ public abstract class myDispWindow {
 		this.uiClkCoords[3] += yOff;
 		float oldBtnLen = 0;
 		for(int i=0; i<numBtns; ++i){						//clickable button regions - as rect,so x,y,w,h - need to be in terms of sidebar menu 
-			float btnLen = calcBtnLength(truePrivFlagNames[i],falsePrivFlagNames[i]);
+			float btnLen = calcBtnLength(truePrivFlagNames[i].trim(),falsePrivFlagNames[i].trim());
 			if(i%2 == 0){//even btns always on a new line
 				privFlagBtns[i]= new float[] {(float)(uiClkCoords[0]-xOff), (float) uiClkCoords[3], btnLen, yOff };
 			} else {	//odd button

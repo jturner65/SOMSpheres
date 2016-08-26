@@ -30,14 +30,15 @@ public class mySOMAnimResWin extends myDispWindow {
 			showSelSphereIDX	= 8,				//highlight the sphere with the selected idx
 			useSmplsForTrainIDX = 9,				//use surface samples, or sphere centers, for training data
 			showMapBasedLocsIDX = 10,				//show map-derived locations of training data instead of actual locations (or along with?)
-			mapBuiltToCurSphrsIDX = 11;				//the current sphere configuration has an underlying map built to it
+			mapBuiltToCurSphrsIDX = 11,				//the current sphere configuration has an underlying map built to it
+			regenSpheresIDX = 12;					//regenerate spheres with current specs
 	
-	public static final int numPrivFlags = 12;
+	public static final int numPrivFlags = 13;
 	
 	//represented random spheres
 	public mySOMSphere[] spheres;
 	public int numSpheres = 200, numSmplPoints = 200, curSelSphereIDX = 0;
-	public float minSphRad = 5, maxSphRad = 20;
+	public float minSphRad = 5, maxSphRad = 50;
 	
 	public dataPoint[] sphereTrainData, sphereTestData, 
 					sphereCtrData, sphereSmplData;
@@ -60,14 +61,14 @@ public class mySOMAnimResWin extends myDispWindow {
 	//initialize all private-flag based UI buttons here - called by base class
 	public void initAllPrivBtns(){
 		truePrivFlagNames = new String[]{								//needs to be in order of privModFlgIdxs
-				"Debugging Spheres", "Show Spheres","Showing Maps Locs", "Hide Labels", "Loc as Clr of Sphere", "Samples: Loc As Color", "Sel Sphere HiLite", 
-				"Samples As Train",  "Save Data"
+				"Debugging Spheres", "Regen Spheres", "Show Spheres","Showing Maps Locs", "Hide Labels", "Loc as Clr of Sphere", "Samples: Loc As Color", "HiLite Sel Sphr", 
+				"Smpls As Train",  "Save Data"
 		};
 		falsePrivFlagNames = new String[]{			//needs to be in order of flags
-				"Debug Spheres", "Show Sample Pts","Showing Actual Locs","Show Labels","Rand Color for Sphere", "Samples: Sphr Color As Color", "HiLite Off", 
-				"Centers As Train", "Save Data"
+				"Debug Spheres", "Regen Spheres","Show Sample Pts","Showing Actual Locs","Show Labels","Rand Color for Sphere", "Samples: Sphr Color As Color", "HiLite Off", 
+				"Cntrs As Train", "Save Data"
 		};
-		privModFlgIdxs = new int[]{debugAnimIDX, showSamplePntsIDX,showMapBasedLocsIDX,showSphereIdIDX, 
+		privModFlgIdxs = new int[]{debugAnimIDX, regenSpheresIDX, showSamplePntsIDX,showMapBasedLocsIDX,showSphereIdIDX, 
 				useSphrLocAsClrIDX, useSmplLocAsClrIDX, showSelSphereIDX, 
 				useSmplsForTrainIDX, saveSphereDataIDX};
 		numClickBools = privModFlgIdxs.length;	
@@ -84,6 +85,7 @@ public class mySOMAnimResWin extends myDispWindow {
 
 	
 	public void initAllSpheres(){
+		setPrivFlags(sphereDataLoadedIDX,false);
 		pa.th_exec.execute(new sphereLoader(pa, this));		//fire and forget load of spheres	
 	}
 	
@@ -104,6 +106,7 @@ public class mySOMAnimResWin extends myDispWindow {
 			case showSelSphereIDX 		: { break;}
 			case useSmplsForTrainIDX	: {break;}		//use surface samples for train and centers for test, or vice versa
 			case mapBuiltToCurSphrsIDX  : {break;}     //whether map has been built and loaded for current config of spheres
+			case regenSpheresIDX		: {  if(val){initAllSpheres();privFlags[flIDX] =  privFlags[flIDX] & ~mask;} break;}		//remake all spheres, turn of flag
 		}		
 	}//setPrivFlags		
 	
@@ -114,8 +117,8 @@ public class mySOMAnimResWin extends myDispWindow {
 		guiMinMaxModVals = new double [][]{
 			{10,1000,10},										//# of spheres
 			{10,1000,10},										//# of per-sphere samples
-			{1,50,1},											//min radius of spheres
-			{10,100,1},											//max radius of spheres
+			{1,100,1},											//min radius of spheres
+			{10,500,1},											//max radius of spheres
 			{0,numSpheres-1,1}											//which sphere to select to highlight
 		};														//min max mod values for each modifiable UI comp	
 		
@@ -155,22 +158,22 @@ public class mySOMAnimResWin extends myDispWindow {
 
 		switch(UIidx){		
 		case gIDX_NumSpheres : {
-			if(ival != numSpheres){numSpheres = ival;guiObjs[gIDX_SelDispSphere].setNewMax(ival-1);setPrivFlags(sphereDataLoadedIDX,false);initAllSpheres();}
+			if(ival != numSpheres){numSpheres = ival;guiObjs[gIDX_SelDispSphere].setNewMax(ival-1);initAllSpheres();}
 			break;}
 		case gIDX_NumSamples : {
-			if(ival != numSmplPoints){numSmplPoints = ival;setPrivFlags(sphereDataLoadedIDX,false);initAllSpheres();}
+			if(ival != numSmplPoints){numSmplPoints = ival;initAllSpheres();}
 			break;}
 		case gIDX_MinRadius : {
 			if(val != minSphRad){
 				minSphRad = val;
 				if(minSphRad >= maxSphRad) { maxSphRad = minSphRad + 1;setWinToUIVals(gIDX_MaxRadius, maxSphRad);   }
-				setPrivFlags(sphereDataLoadedIDX,false);initAllSpheres();}
+				initAllSpheres();}
 			break;}
 		case gIDX_MaxRadius	: {
 			if(val != maxSphRad){
 				maxSphRad = val;
 				if(minSphRad >= maxSphRad)  { minSphRad = maxSphRad - 1;setWinToUIVals(gIDX_MinRadius, minSphRad);   }				
-				setPrivFlags(sphereDataLoadedIDX,false);initAllSpheres();}
+				initAllSpheres();}
 			break;}
 		case gIDX_SelDispSphere :{
 			if(ival != curSelSphereIDX){curSelSphereIDX = pa.min(ival, numSpheres-1);}//don't select a sphere Higher than the # of spheres
@@ -226,9 +229,6 @@ public class mySOMAnimResWin extends myDispWindow {
 					}
 					if(getPrivFlags(showSphereIdIDX)){				for(mySOMSphere s : spheres){s.drawMeLabel_BMU();}	}
 					if(getPrivFlags(showSelSphereIDX)){				spheres[curSelSphereIDX].drawMeSelected_BMU(animTimeMod);     }
-					
-					
-				
 				} else {										setPrivFlags(showMapBasedLocsIDX, false);	}	//turn off flag if not possible to draw 
 			} else {				
 				if(getPrivFlags(useSphrLocAsClrIDX)){

@@ -409,7 +409,14 @@ class sphereLoader implements Runnable {
 			win.spheres[i] = new mySOMSphere(pa, win, loc, rad, win.numSmplPoints, colorVal);			
 			win.sphereCtrData[i] = new dataPoint(pa,win.SOMSpheres_Data,loc.asArray(), false, i, false, true);//make color ara
 			win.sphereCtrData[i].setCorrectScaling(pa.cubeBnds[0],pa.cubeBnds[1]);
-			win.sphereCtrData[i].label = new dataClass(win.SOMSpheres_Data,win.spheres[i].ID,0,"Sphere "+ win.spheres[i].ID,"Sphere "+ win.spheres[i].ID + " loc : "+win.spheres[i].loc.toStrBrf(), win.spheres[i].clrVal);
+			int sphrID = win.spheres[i].ID;
+			win.sphereCtrData[i].label = 
+					new dataClass(
+							win.SOMSpheres_Data,
+							sphrID,0,
+							"Sphere "+ sphrID,
+							"Sphere "+ sphrID + " loc : "+win.spheres[i].loc.toStrBrf(), 
+							win.spheres[i].clrVal);
 			win.spheres[i].dp = win.sphereCtrData[i];
 			System.arraycopy(win.spheres[i].smplPts, 0, win.sphereSmplData, (i*win.numSmplPoints), win.numSmplPoints);//shallow copy of refs
 		}	

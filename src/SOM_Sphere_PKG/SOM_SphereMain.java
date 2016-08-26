@@ -90,7 +90,8 @@ import processing.opengl.*;
 			
 			numThreadsAvail = Runtime.getRuntime().availableProcessors();
 			pr("# threads : "+ numThreadsAvail);
-			th_exec = Executors.newCachedThreadPool();
+			th_exec = Executors.newFixedThreadPool(numThreadsAvail);
+			//th_exec = Executors.newCachedThreadPool();
 			
 			focusTar = new myVector(sceneFcsVals[sceneIDX]);
 			 
