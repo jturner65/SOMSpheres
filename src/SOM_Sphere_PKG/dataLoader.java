@@ -483,7 +483,6 @@ class sphereWriter implements Runnable{
 		for(int i = 0; i<win.sphereCtrData.length;++i){
 			outStrings[i+4] = win.sphereCtrData[i].toLRNString(ctrSep);
 		}
-		outStrings = pa.shuffleStrList(outStrings, "centers");
 		pa.saveStrings(ctrFileName,outStrings);
 		pa.outStr2Scr(sphereMsg);
 		//save to testFileName
@@ -499,9 +498,10 @@ class sphereWriter implements Runnable{
 			for(dataPoint dp : tmp){	
 				outStrings[strIDX++] = dp.toLRNString(smplSep);			
 			}
+		}		
+		if(win.getPrivFlags(win.rndSphrDataIDX)){
+			outStrings = pa.shuffleStrList(outStrings, "samples");
 		}
-		
-		outStrings = pa.shuffleStrList(outStrings, "samples");
 		
 		pa.saveStrings(sampleFileName,outStrings);		
 		pa.outStr2Scr(smplMsg);	

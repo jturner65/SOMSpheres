@@ -33,9 +33,10 @@ public class mySOMAnimResWin extends myDispWindow {
 			useSmplsForTrainIDX = 9,				//use surface samples, or sphere centers, for training data
 			showMapBasedLocsIDX = 10,				//show map-derived locations of training data instead of actual locations (or along with?)
 			mapBuiltToCurSphrsIDX = 11,				//the current sphere configuration has an underlying map built to it
-			regenSpheresIDX = 12;					//regenerate spheres with current specs
+			regenSpheresIDX 	= 12,				//regenerate spheres with current specs
+			rndSphrDataIDX 		= 13;				//randomize order of training data as being saved
 	
-	public static final int numPrivFlags = 13;
+	public static final int numPrivFlags = 14;
 	
 	//represented random spheres
 	public mySOMSphere[] spheres;
@@ -63,16 +64,16 @@ public class mySOMAnimResWin extends myDispWindow {
 	//initialize all private-flag based UI buttons here - called by base class
 	public void initAllPrivBtns(){
 		truePrivFlagNames = new String[]{								//needs to be in order of privModFlgIdxs
-				"Debugging Spheres", "Regen Spheres", "Show Spheres","Showing Maps Locs", "Hide Labels", "Loc as Clr of Sphere", "Samples: Loc As Color", "HiLite Sel Sphr", 
-				"Smpls As Train",  "Save Data"
+				"Debugging Spheres", "Regen Spheres", "Show Spheres","Showing Maps Locs", "Hide Labels", "Loc as Clr of Sphere", "Samples: Loc As Color",  
+				"Rnd Smpl Order", "HiLite Sel Sphr","Smpls As Train", "Save Data"
 		};
 		falsePrivFlagNames = new String[]{			//needs to be in order of flags
-				"Debug Spheres", "Regen Spheres","Show Sample Pts","Showing Actual Locs","Show Labels","Rand Color for Sphere", "Samples: Sphr Color As Color", "HiLite Off", 
-				"Cntrs As Train", "Save Data"
+				"Debug Spheres", "Regen Spheres","Show Sample Pts","Showing Actual Locs","Show Labels","Rand Color for Sphere", "Samples: Sphr Color As Color",  
+				"Seq Smpl Order", "HiLite Off","Cntrs As Train", "Save Data"
 		};
-		privModFlgIdxs = new int[]{debugAnimIDX, regenSpheresIDX, showSamplePntsIDX,showMapBasedLocsIDX,showSphereIdIDX, 
+		privModFlgIdxs = new int[]{debugAnimIDX, regenSpheresIDX, showSamplePntsIDX,showMapBasedLocsIDX,
 				useSphrLocAsClrIDX, useSmplLocAsClrIDX, showSelSphereIDX, 
-				useSmplsForTrainIDX, saveSphereDataIDX};
+				rndSphrDataIDX,showSphereIdIDX,  useSmplsForTrainIDX, saveSphereDataIDX};
 		numClickBools = privModFlgIdxs.length;	
 		initPrivBtnRects(0,numClickBools);
 	}//initAllPrivBtns
@@ -109,6 +110,7 @@ public class mySOMAnimResWin extends myDispWindow {
 			case useSmplsForTrainIDX	: {break;}		//use surface samples for train and centers for test, or vice versa
 			case mapBuiltToCurSphrsIDX  : {break;}     //whether map has been built and loaded for current config of spheres
 			case regenSpheresIDX		: {  if(val){initAllSpheres();privFlags[flIDX] =  privFlags[flIDX] & ~mask;} break;}		//remake all spheres, turn of flag
+			case rndSphrDataIDX			: { break;}		//whether or not to randomize training data before save
 		}		
 	}//setPrivFlags		
 	
