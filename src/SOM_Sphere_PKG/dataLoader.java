@@ -482,8 +482,8 @@ class sphereWriter implements Runnable{
 		
 		for(int i = 0; i<win.sphereCtrData.length;++i){
 			outStrings[i+4] = win.sphereCtrData[i].toLRNString(ctrSep);
-//			pa.outStr2Scr("sphere ctr ex : " + (i+4) + " : "+win.sphereTrainData[i].toString());
 		}
+		outStrings = pa.shuffleStrList(outStrings, "centers");
 		pa.saveStrings(ctrFileName,outStrings);
 		pa.outStr2Scr(sphereMsg);
 		//save to testFileName
@@ -498,9 +498,11 @@ class sphereWriter implements Runnable{
 			dataPoint[] tmp = win.spheres[i].smplPts;
 			for(dataPoint dp : tmp){	
 				outStrings[strIDX++] = dp.toLRNString(smplSep);			
-//				pa.outStr2Scr("sphere smple ex : sphere : " + i + " str idx : " + (strIDX-1) + " : "+dp.toString());
 			}
 		}
+		
+		outStrings = pa.shuffleStrList(outStrings, "samples");
+		
 		pa.saveStrings(sampleFileName,outStrings);		
 		pa.outStr2Scr(smplMsg);	
 		//save diffs and mins - csv files with each field value sep'ed by a comma

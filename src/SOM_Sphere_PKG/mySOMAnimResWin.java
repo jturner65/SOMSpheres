@@ -1,5 +1,7 @@
 package SOM_Sphere_PKG;
 
+import java.util.concurrent.ThreadLocalRandom;
+
 public class mySOMAnimResWin extends myDispWindow {
 	
 	public SOMMapData SOMSpheres_Data;						//map built from the spheres data
@@ -77,7 +79,7 @@ public class mySOMAnimResWin extends myDispWindow {
 	
 	@Override
 	protected void initMe() {	
-		initUIBox();				//set up ui click region to be in sidebar menu below menu's entries		
+		initUIBox();				//set up ui click region to be in sidebar menu below menu's entries			
 		dispFlags[trajDecays] = true;								//this window responds to travelling reticle/playing
 		curTrajAraIDX = 0;		
 		initPrivFlags(numPrivFlags);		

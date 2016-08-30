@@ -964,6 +964,20 @@ import processing.opengl.*;
 			return new int[]{(int)(255*(t[0]-cubeBnds[0][0])/cubeBnds[1][0]),(int)(255*(t[1]-cubeBnds[0][1])/cubeBnds[1][1]),(int)(255*(t[2]-cubeBnds[0][2])/cubeBnds[1][2]),255};
 		}
 		
+		//performs fisher-yates shuffle
+		public String[] shuffleStrList(String[] _list, String type){
+			String tmp = "";
+			for(int i=(_list.length-1);i>0;--i){
+				int j = (int)(ThreadLocalRandom.current().nextDouble(0,i));
+				tmp = _list[i];
+				_list[i] = _list[j];
+				_list[j] = tmp;
+			//	outStr2Scr("From i : " + i + " to j : " + j);
+			}
+			outStr2Scr("String list of Sphere " + type + " shuffled");
+			return _list;
+		}//shuffleStrList
+		
 		//random location within coords[0] and coords[1] extremal corners of a cube - bnds is to give a margin of possible random values
 		public myVectorf getRandPosInCube(float[][] coords, float bnds){
 			return new myVectorf(
