@@ -360,7 +360,7 @@ public class mySOMMapUIWin extends myDispWindow {
 		else {return checkUIButtons(mouseX, mouseY);}
 	}
 	@Override
-	protected boolean hndlMouseDragIndiv(int mouseX, int mouseY,int pmouseX, int pmouseY, myPoint mouseClickIn3D, myVector mseDragInWorld) {
+	protected boolean hndlMouseDragIndiv(int mouseX, int mouseY,int pmouseX, int pmouseY, myPoint mouseClickIn3D, myVector mseDragInWorld, int mseBtn) {
 		boolean mod = false;
 		
 		return mod;

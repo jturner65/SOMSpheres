@@ -669,7 +669,7 @@ public abstract class myDispWindow {
 		else {
 			if((!pa.ptInRange(mouseX, mouseY, rectDim[0], rectDim[1], rectDim[0]+rectDim[2], rectDim[1]+rectDim[3]))){return false;}	//if not drawing or editing a trajectory, force all dragging to be within window rectangle
 			//pa.outStr2Scr("before handle indiv drag traj");
-			mod = hndlMouseDragIndiv(mouseX, mouseY,pmouseX, pmouseY,mouseClickIn3D,mseDragInWorld);}		//handle specific, non-trajectory functionality for implementation of window
+			mod = hndlMouseDragIndiv(mouseX, mouseY,pmouseX, pmouseY,mouseClickIn3D,mseDragInWorld,mseBtn);}		//handle specific, non-trajectory functionality for implementation of window
 		return mod;
 	}//handleMouseClick	
 	
@@ -823,7 +823,7 @@ public abstract class myDispWindow {
 	//implementing class' necessary functions - implement for each individual window
 	protected abstract boolean hndlMouseMoveIndiv(int mouseX, int mouseY, myPoint mseClckInWorld);
 	protected abstract boolean hndlMouseClickIndiv(int mouseX, int mouseY, myPoint mseClckInWorld, int mseBtn);
-	protected abstract boolean hndlMouseDragIndiv(int mouseX, int mouseY,int pmouseX, int pmouseY, myPoint mouseClickIn3D, myVector mseDragInWorld);
+	protected abstract boolean hndlMouseDragIndiv(int mouseX, int mouseY,int pmouseX, int pmouseY, myPoint mouseClickIn3D, myVector mseDragInWorld, int mseBtn);
 	protected abstract void snapMouseLocs(int oldMouseX, int oldMouseY, int[] newMouseLoc);	
 	
 	protected abstract void hndlMouseRelIndiv();
@@ -1099,7 +1099,7 @@ class mySideBarMenu extends myDispWindow{
 		return false;
 	}
 	@Override
-	protected boolean hndlMouseDragIndiv(int mouseX, int mouseY,int pmouseX, int pmouseY, myPoint mouseClickIn3D, myVector mseDragInWorld) {		return false;	}
+	protected boolean hndlMouseDragIndiv(int mouseX, int mouseY,int pmouseX, int pmouseY, myPoint mouseClickIn3D, myVector mseDragInWorld, int mseBtn) {		return false;	}
 	@Override
 	protected void hndlMouseRelIndiv() {	clearAllBtnStates();	}
 
