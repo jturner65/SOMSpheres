@@ -497,9 +497,11 @@ class dataPoint{
 		setRad( 2.0f);
 	}//ctor
 	//public dataPoint( SOM_SphereMain _p,SOMMapData _map,  float [] _ftrs, boolean _wasBuiltScaled, int _seq, boolean _skipFirstFtr){this( _p, _map, _ftrs, _wasBuiltScaled, _seq, _skipFirstFtr, false);}
-	
+	public static float minRad = 100000, maxRad = -100000;
 	protected void setRad(float _rad){
-		rad = _rad;
+		rad =  ((int)(Math.log(2*(rad+1)))+1);
+		minRad = minRad > rad ? rad : minRad;
+		maxRad = maxRad < rad ? rad : maxRad;
 		drawDet = ((int)(Math.log(2*(rad+1)))+1);
 	}
 	public float getRad(){return rad;}

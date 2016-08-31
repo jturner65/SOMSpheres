@@ -71,9 +71,9 @@ public class mySOMAnimResWin extends myDispWindow {
 				"Debug Spheres", "Regen Spheres","Show Sample Pts","Showing Actual Locs","Show Labels","Rand Color for Sphere", "Samples: Sphr Color As Color",  
 				"Seq Smpl Order", "HiLite Off","Cntrs As Train", "Save Data"
 		};
-		privModFlgIdxs = new int[]{debugAnimIDX, regenSpheresIDX, showSamplePntsIDX,showMapBasedLocsIDX,
+		privModFlgIdxs = new int[]{debugAnimIDX, regenSpheresIDX, showSamplePntsIDX,showMapBasedLocsIDX,showSphereIdIDX, 
 				useSphrLocAsClrIDX, useSmplLocAsClrIDX, showSelSphereIDX, 
-				rndSphrDataIDX,showSphereIdIDX,  useSmplsForTrainIDX, saveSphereDataIDX};
+				rndSphrDataIDX, useSmplsForTrainIDX, saveSphereDataIDX};
 		numClickBools = privModFlgIdxs.length;	
 		initPrivBtnRects(0,numClickBools);
 	}//initAllPrivBtns
@@ -260,7 +260,9 @@ public class mySOMAnimResWin extends myDispWindow {
 	protected void stopMe() {	}	
 	
 	//debug function
-	public void dbgFunc0(){	
+	public void dbgFunc0(){
+		//show min and max radius give to map nodes
+		pa.outStr2Scr("Min Radius : " +dataPoint.minRad + "|Max Radius : " +dataPoint.maxRad);
 	}	
 	public void dbgFunc1(){	
 	}	
