@@ -496,10 +496,10 @@ class dataPoint{
 		bmu = null;
 		setRad( 2.0f);
 	}//ctor
-	//public dataPoint( SOM_SphereMain _p,SOMMapData _map,  float [] _ftrs, boolean _wasBuiltScaled, int _seq, boolean _skipFirstFtr){this( _p, _map, _ftrs, _wasBuiltScaled, _seq, _skipFirstFtr, false);}
-	public static float minRad = 100000, maxRad = -100000;
+
+	public static float minRad = 100000, maxRad = -100000;//for debugging purposes, gives min and max radii of spheres that will be displayed on map for each node proportional to # of samples
 	protected void setRad(float _rad){
-		rad =  ((int)(Math.log(2*(rad+1)))+1);
+		rad = ((float)(Math.log(2.0f*(_rad+1))));
 		minRad = minRad > rad ? rad : minRad;
 		maxRad = maxRad < rad ? rad : maxRad;
 		drawDet = ((int)(Math.log(2*(rad+1)))+1);
