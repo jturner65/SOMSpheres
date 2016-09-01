@@ -310,7 +310,13 @@ public class SOMMapData {
 		mapRndClrImg.updatePixels();
 	}//setMapImgClrs
 	
-	//get pxl location in map that is closest to passed data point
+	public boolean isToroidal(){
+		if(null==SOMExeDat){return false;}
+		return SOMExeDat.isToroidal();
+	}
+	
+	
+	//get pxl location in map that is closest to passed data point TODO
 	public Tuple<Integer,Integer> getSmplLoc(dataPoint dp){
 		//go through every map node, find closest nodes to datapoint, look around their neighborhoods
 		
@@ -397,6 +403,10 @@ public class SOMMapData {
 		boolean didSet = win.setWinToUIVals(win.uiMapRowsIDX, mapY);
 		if(!didSet){p.outStr2Scr("Setting ui map y value failed for y = " + _y);}
 	}
+	
+	public float getMapWidth(){return mapDims[2];}
+	public float getMapHeight(){return mapDims[3];}
+	
 	private void initFlags(){stFlags = new int[1 + numFlags/32]; for(int i = 0; i<numFlags; ++i){setFlag(i,false);}}
 	public void setFlag(int idx, boolean val){
 		int flIDX = idx/32, mask = 1<<(idx%32);
@@ -448,6 +458,8 @@ class somocluDat{
 				"-t",""+mapStrings[2], trainDataFN , outFilesPrefix};
 		return res;		
 	}//execString
+	
+	public boolean isToroidal(){return (mapStrings[0].equals("toroid"));}
 	
 	@Override
 	public String toString(){
@@ -696,7 +708,7 @@ class SOMmapNode extends dataPoint{
 		mapLoc = map.buildScaledLoc(mapNode);
 		bmu = this;		
 		numMappedTEx = 0;
-		examplesBMU = new TreeMap<Float,dataPoint>();			
+		examplesBMU = new TreeMap<Float,dataPoint>();		//defaults to small->large ordering	
 		ftrsBestInThisUnit = new ArrayList<SOMFeature>();
 	}
 	
@@ -709,7 +721,12 @@ class SOMmapNode extends dataPoint{
 	
 	public boolean hasMappings(){return numMappedTEx != 0;}
 	@Override
-	public dataClass getLabel(){return examplesBMU.firstEntry().getValue().getLabel();}
+	public dataClass getLabel(){
+		if(numMappedTEx == 0){
+			p.outStr2Scr("Mapnode :"+mapNode.toString()+" has no mapped BMU examples.");
+			return null;
+		}
+		return examplesBMU.firstEntry().getValue().getLabel();}
 	public int getExmplBMUSize() {return  examplesBMU.size();}
 	public void drawMeSmallBk(){
 		p.pushMatrix();p.pushStyle();

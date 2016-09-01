@@ -9,7 +9,7 @@ public class dataLoader implements Runnable {
 	public SOMMapData map;				//the map these files will use
 	public SOMDatFileConfig fnames;			//struct maintaining file names for all files in som, along with 
 	
-	public final float nodeDistThresh = 100000.0f;
+	public final static float nodeDistThresh = 100000.0f;
 	//idxs of different kinds of files
 	public static final int
 		wtsIDX = 0,
@@ -285,22 +285,33 @@ public class dataLoader implements Runnable {
 			map.nodesWithNoEx.remove(tmpMapNode);
 			//p.pr("Tuple "  + mapLoc + " from str @ i-2 = " + (i-2) + " node : " + tmpMapNode.toString());
 		}
+		//float nodeDistThresh = 
 		//set all empty mapnodes to have a label based on the most common label of their 4 neighbors (up,down,left,right)
 		for(SOMmapNode node : map.nodesWithNoEx){
 			//tmpMapNode has no mappings, so need to determine label
 			for(SOMmapNode node2 : map.nodesWithEx){
-				float dist = getSqMapDist(node2, node);			//actual map topology dist
-				if(dist <= nodeDistThresh){
+				float dist = getSqMapDist(node2, node);			//actual map topology dist - need to handle wrapping!
+				//if(dist <= nodeDistThresh){					//pxl distance
 					node.addBMUExample(dist, node2);			//adds a node we know has a label
-				}
+				//}
 			}			
 		}
 		
 		p.pr("Finished Loading SOM BMUs from file : " + p.getFName(bmFileName) + "| Found "+map.nodesWithEx.size()+" nodes with example mappings.");
 		return true;
 	}//loadSOM_BMs
-	//returns sq distance between two map locations
-	public float getSqMapDist(SOMmapNode a, SOMmapNode b){return (float)(a.mapLoc._SqrDist(b.mapLoc));	}
+	//returns sq distance between two map locations - needs to handle wrapping if map built torroidally
+	public float getSqMapDist(SOMmapNode a, SOMmapNode b){
+		float aDist = (a.mapLoc._SqrDist(b.mapLoc));
+		if (map.isToroidal()){//need to check distances
+			float 
+				oldXa = a.mapLoc.x - b.mapLoc.x, oldXaSq = oldXa*oldXa,
+				newXa = oldXa + map.getMapWidth(), newXaSq = newXa*newXa,
+				oldYa = a.mapLoc.y - b.mapLoc.y, oldYaSq = oldYa*oldYa,
+				newYa = oldYa + map.getMapHeight(), newYaSq = newYa*newYa;
+			return (oldXaSq < newXaSq ? oldXaSq : newXaSq ) + (oldYaSq < newYaSq ? oldYaSq : newYaSq);
+		} else {return aDist;	}//not torroidal map, so direct distance is fine
+	}
 	
 	private boolean loadSOM_ftrBMUs(){
 		String ftrBMUFname =  fnames.getSOMResFName(fwtsIDX);

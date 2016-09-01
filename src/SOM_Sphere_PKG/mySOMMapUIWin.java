@@ -311,7 +311,7 @@ public class mySOMMapUIWin extends myDispWindow {
 				break;}
 		}
 	}
-
+	
 	@Override
 	public void initDrwnTrajIndiv(){}
 	@Override
