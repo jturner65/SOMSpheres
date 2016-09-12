@@ -56,7 +56,7 @@ import processing.opengl.*;
 		
 		public final int drawnTrajEditWidth = 10; //TODO make ui component			//width in cntl points of the amount of the drawn trajectory deformed by dragging
 		public final float
-					InstEditWinYMult = .10f,
+					PopUpWinOpenFraction = .40f,				//fraction of screen not covered by popwindow
 					wScale = frameRate/5.0f,					//velocity drag scaling	
 					trajDragScaleAmt = 100.0f;					//amt of displacement when dragging drawn trajectory to edit
 				
@@ -365,10 +365,10 @@ import processing.opengl.*;
 		}//handleFileCmd
 		
 		public void initDispWins(){
-			float InstEditWinHeight = InstEditWinYMult * height;		//how high is the InstEdit window when shown
+			float popUpWinHeight = PopUpWinOpenFraction * height;		//how high is the InstEdit window when shown
 			//instanced window dimensions when open and closed - only showing 1 open at a time
 			winRectDimOpen[dispAnimResIDX] =  new float[]{menuWidth+hideWinWidth, 0,width-menuWidth-hideWinWidth,height-hidWinHeight};			
-			winRectDimOpen[dispSOMMapIDX]  =  new float[]{menuWidth, InstEditWinHeight, width-menuWidth, height-InstEditWinHeight};
+			winRectDimOpen[dispSOMMapIDX]  =  new float[]{menuWidth, popUpWinHeight, width-menuWidth, height-popUpWinHeight};
 			//hidden
 			winRectDimClose[dispAnimResIDX] =  new float[]{menuWidth, 0, hideWinWidth, height};				
 			winRectDimClose[dispSOMMapIDX]  =  new float[]{menuWidth, height-hidWinHeight, width-menuWidth, hidWinHeight};
