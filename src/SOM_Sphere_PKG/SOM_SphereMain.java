@@ -694,20 +694,19 @@ import processing.opengl.*;
 				case showUIMenu 	    : { dispWinFrames[dispMenuIDX].setShow(val);    break;}											//whether or not to show the main ui window (sidebar)
 				
 				case showAnimRes		: {setWinFlagsXOR(dispAnimResIDX, val); break;}
-				case showSOMMapUI 		: {dispWinFrames[dispSOMMapIDX].setShow(val);handleShowWin(dispSOMMapIDX-1 ,(val ? 1 : 0),false); setWinsHeight(); break;}	//show InstEdit window
+				case showSOMMapUI 		: {dispWinFrames[dispSOMMapIDX].setShow(val);handleShowWin(dispSOMMapIDX-1 ,(val ? 1 : 0),false); setWinsHeight(dispSOMMapIDX); break;}	//show InstEdit window
 
 				//case useDrawnVels 		: {for(int i =1; i<dispWinFrames.length;++i){dispWinFrames[i].rebuildAllDrawnTrajs();}break;}
 				default : {break;}
 			}
 		}//setFlags  
 		
-		//set the height of each window that is above the InstEdit window, to move up or down when it changes size
-		public void setWinsHeight(){
+		//set the height of each window that is above the popup window, to move up or down when it changes size
+		public void setWinsHeight(int popUpWinIDX){
 			for(int i =0;i<winDispIdxXOR.length;++i){//skip first window - ui menu - and last window - InstEdit window
 				dispWinFrames[winDispIdxXOR[i]].setRectDimsY( dispWinFrames[dispSOMMapIDX].getRectDim(1));
 			}						
-		}		
-		//specify mutually exclusive flags here
+		}			//specify mutually exclusive flags here
 		public int[] winFlagsXOR = new int[]{showAnimRes};//showSequence,showSphereUI};
 		//specify windows that cannot be shown simultaneously here
 		public int[] winDispIdxXOR = new int[]{dispAnimResIDX};//dispPianoRollIDX,dispSphereUIIDX};
