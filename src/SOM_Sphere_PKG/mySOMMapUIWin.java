@@ -174,7 +174,8 @@ public class mySOMMapUIWin extends myDispWindow {
 					getUIListValStr(uiMapNHdFuncIDX, (int)this.guiObjs[uiMapNHdFuncIDX].getVal()),	
 					getUIListValStr(uiMapLrnCoolIDX, (int)this.guiObjs[uiMapLrnCoolIDX].getVal())	
 				}, lrnFileName,  outFilePrfx);
-		pa.outStr2Scr("Som map descriptor : " + SOMExecDat + " exec str : " + SOMExecDat.execString());
+		pa.outStr2Scr("Som map descriptor : " + SOMExecDat + " exec str : ");
+		pa.outStr2ScrAra(SOMExecDat.execString());
 		//launch in a thread?
 		SOM_Data.buildNewMap(SOMExecDat);
 		//now load new map data and configure SOMMapData obj to hold all appropriate data
@@ -239,7 +240,7 @@ public class mySOMMapUIWin extends myDispWindow {
 				"End Cool Radius" 		//uiMapRadEndIDX				
 		};			//name/label of component	
 					
-		//idx 0 is treat as int, idx 1 is obj has list vals, idx 2 is object gets sent to windows
+		//idx 0 is treat as int, idx 1 is obj has list vals, idx 2 is object gets sent to windows, 3 is object allows for lclick-up/rclick-down mod
 		guiBoolVals = new boolean [][]{
 			{true, false, true},      						//uiMapRowsIDX 	 	
 			{true, false, true},      						//uiMapColsIDX	 	

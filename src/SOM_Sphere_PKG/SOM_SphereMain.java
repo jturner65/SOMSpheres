@@ -260,7 +260,10 @@ import processing.opengl.*;
 
 		//2d range checking of point
 		public boolean ptInRange(double x, double y, double minX, double minY, double maxX, double maxY){return ((x > minX)&&(x <= maxX)&&(y > minY)&&(y <= maxY));}	
-		
+		//gives multiplier based on whether shift, alt or cntl (or any combo) is pressed
+		public double clickValModMult(){
+			return ((flags[altKeyPressed] ? .1 : 1.0) * (flags[cntlKeyPressed] ? 10.0 : 1.0));			
+		}
 		public void mouseMoved(){for(int i =0; i<numDispWins; ++i){if (dispWinFrames[i].handleMouseMove(mouseX, mouseY,c.getMseLoc(sceneCtrVals[sceneIDX]))){return;}}}
 		public void mousePressed() {
 			//verify left button if(mouseButton == LEFT)
@@ -850,7 +853,7 @@ import processing.opengl.*;
 				disp += 12;
 			}
 		}
-		
+		public void outStr2ScrAra(String[] sAra){for(String s : sAra){outStr2Scr(s,true);}}
 		//print out string in display window
 		public void outStr2Scr(String str){outStr2Scr(str,true);}
 		//print informational string data to console, and to screen

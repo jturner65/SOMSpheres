@@ -140,7 +140,7 @@ public class mySOMAnimResWin extends myDispWindow {
 			"Max sphere radius",
 			"ID of sphere to select"
 		};							//name/label of component		
-		//idx 0 is treat as int, idx 1 is obj has list vals, idx 2 is object gets sent to windows
+		//idx 0 is treat as int, idx 1 is obj has list vals, idx 2 is object gets sent to windows, 3 is object allows for lclick-up/rclick-down mod
 		guiBoolVals = new boolean [][]{
 			{true, false, true},
 			{true, false, true},
