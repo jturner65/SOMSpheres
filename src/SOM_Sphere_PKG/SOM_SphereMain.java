@@ -454,8 +454,6 @@ import processing.opengl.*;
 		public float[][] cubeBnds = new float[][]{//idx 0 is min, 1 is diffs
 			new float[]{-gridDimX/2.0f,-gridDimY/2.0f,-gridDimZ/2.0f},//mins
 			new float[]{gridDimX,gridDimY,gridDimZ}};			//diffs
-
-		
 		
 		private final int cnslStrDecay = 3;			//how long a message should last before it is popped from the console strings deque
 		
@@ -467,7 +465,7 @@ import processing.opengl.*;
 		public int sceneIDX;			//which idx in the 2d arrays of focus vals and glbl center vals to use, based on state
 		public myVector[] sceneFcsVals = new myVector[]{						//set these values to be different targets of focus
 				new myVector(-grid2D_X/2,-grid2D_Y/1.75f,0),
-				new myVector(0,0,0)
+				new myVector(0,0,100)
 		};
 		
 		public myPoint[] sceneCtrVals = new myPoint[]{						//set these values to be different display center translations -
@@ -853,7 +851,13 @@ import processing.opengl.*;
 				disp += 12;
 			}
 		}
-		public void outStr2ScrAra(String[] sAra){for(String s : sAra){outStr2Scr(s,true);}}
+		//print out a string ara with perLine # of strings per line
+		public void outStr2ScrAra(String[] sAra, int perLine){
+			for(int i=0;i<sAra.length; i+=perLine){
+				String s = "";
+				for(int j=0; j<perLine; ++j){	s+= sAra[i+j]+ "\t";}
+				outStr2Scr(s,true);}
+		}
 		//print out string in display window
 		public void outStr2Scr(String str){outStr2Scr(str,true);}
 		//print informational string data to console, and to screen

@@ -113,7 +113,7 @@ public class SOMMapData {
 	//Build map from sphere data by aggregating all training data, building SOM exec string from UI input, and calling OS cmd to run somoclu
 	public boolean buildNewMap(somocluDat _dat){
 		SOMExeDat = _dat;				
-		try {	runMap(SOMExeDat.execString());	} 
+		try {	runMap(SOMExeDat.execStrAra());	} 
 		catch (IOException e){	p.outStr2Scr("Error running map : " + e.getMessage());	return false;}		
 		return true;
 	}//buildNewMap
@@ -175,14 +175,22 @@ public class SOMMapData {
 		p.pushMatrix();p.pushStyle();
 		p.setFill(dpFillClr);p.setStroke(dpStkClr);
 		if(this.mseOvrData != null){mseOvrData.drawMeLblMap();}
-		if(win.getPrivFlags(win.mapDrawTrainDatIDX)){if(win.getPrivFlags(win.mapDrawTrDatLblIDX)){for(int i=0;i<trainData.length;++i){trainData[i].drawMeLblMap();}} else {for(int i=0;i<trainData.length;++i){trainData[i].drawMeMap();}}}
+		if(win.getPrivFlags(win.mapDrawTrainDatIDX)){
+			if(win.getPrivFlags(win.mapDrawTrDatLblIDX)){
+				for(int i=0;i<trainData.length;++i){trainData[i].drawMeLblMap();}} 
+			else {for(int i=0;i<trainData.length;++i){trainData[i].drawMeMap();}}}
 		p.popStyle();p.popMatrix();
 		//draw map nodes, either with or without empty nodes
+		if(win.getPrivFlags(win.mapDrawAllMapNodesIDX)){		
+			p.pushMatrix();p.pushStyle();
+			p.setFill(dpFillClr);p.setStroke(dpStkClr);
+			for(SOMmapNode node : MapNodes.values()){	node.drawMeSmallBk();	}
+			p.popStyle();p.popMatrix();
+		} 
 		if(win.getPrivFlags(win.mapDrawMapNodesIDX)){
 			p.pushMatrix();p.pushStyle();
 			p.setFill(dpFillClr);p.setStroke(dpStkClr);
-			if(win.getPrivFlags(win.mapDrawAllMapNodesIDX)){		for(SOMmapNode node : MapNodes.values()){	node.drawMeSmallBk();	}} 
-			else {												for(SOMmapNode node : nodesWithEx){			node.drawMeMap();}}
+			for(SOMmapNode node : nodesWithEx){			node.drawMeMap();}
 			p.popStyle();p.popMatrix();
 		}
 		p.popStyle();p.popMatrix();
@@ -450,7 +458,7 @@ class somocluDat{
 	}
 	
 	//build execution string for somoclu
-	public String[] execString(){
+	public String[] execStrAra(){
 		String[] res = new String[]{execDir, "somoclu.exe",
 				"-k",""+mapInts[3],"-x",""+mapInts[0],"-y",""+mapInts[1], "-e",""+mapInts[2],"-r",""+mapInts[4],"-R",""+mapInts[5],
 				"-l",""+String.format("%.4f",mapFloats[0]),"-L",""+String.format("%.4f",mapFloats[1]), 

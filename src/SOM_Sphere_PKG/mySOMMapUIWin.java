@@ -99,6 +99,15 @@ public class mySOMMapUIWin extends myDispWindow {
 		SOM_Data = new SOMMapData(pa, this, new float[]{xStart, rectDim[1] + offset, width, width});
 	}//initMe
 	
+	//set flag values when finished building map, to speed up initial display
+	public void setFlagsDoneMapBuild(){
+		setPrivFlags(mapDrawTrainDatIDX, false);
+		setPrivFlags(mapDrawTrDatLblIDX, false);
+		setPrivFlags(mapDrawMapNodesIDX, false);
+		setPrivFlags(mapDrawAllMapNodesIDX, false);
+		setPrivFlags(mapShowLocClrIDX, true);
+	}
+	
 	@Override
 	public void setPrivFlags(int idx, boolean val){
 		int flIDX = idx/32, mask = 1<<(idx%32);
@@ -175,13 +184,13 @@ public class mySOMMapUIWin extends myDispWindow {
 					getUIListValStr(uiMapLrnCoolIDX, (int)this.guiObjs[uiMapLrnCoolIDX].getVal())	
 				}, lrnFileName,  outFilePrfx);
 		pa.outStr2Scr("Som map descriptor : " + SOMExecDat + " exec str : ");
-		pa.outStr2ScrAra(SOMExecDat.execString());
+		pa.outStr2ScrAra(SOMExecDat.execStrAra(),2);//2 strings per line
 		//launch in a thread?
 		SOM_Data.buildNewMap(SOMExecDat);
 		//now load new map data and configure SOMMapData obj to hold all appropriate data
 		//TODO need to specify class file name		
 		SOM_Data.loadData("Not Used", diffsFileName, minsFileName, lrnFileName, outFilePrfx, outFilePrfx + "_outCSV", false);
-		
+		setFlagsDoneMapBuild();
 		pa.outStr2Scr("SOM_data.buildNewMap complete");
 		setPrivFlags(buildSOMExe, false);
 	}//buildNewSOMMap	
@@ -192,8 +201,8 @@ public class mySOMMapUIWin extends myDispWindow {
 		//pa.outStr2Scr("setupGUIObjsAras in :"+ name);
 //		if(numInstrs < 0){numInstrs = 0;}
 		guiMinMaxModVals = new double [][]{  
-			{1.0, 300.0, 10},			//uiMapRowsIDX 	 		
-			{1.0, 300.0, 10},			//uiMapColsIDX	 		
+			{1.0, 120.0, 10},			//uiMapRowsIDX 	 		
+			{1.0, 120.0, 10},			//uiMapColsIDX	 		
 			{1.0, 200.0, 10},			//uiMapEpochsIDX		
 			{0.0, 1.0, 1},				//uiMapShapeIDX	 		
 			{0.0, 1.0, 1},				//uiMapBndsIDX	 		
