@@ -139,9 +139,9 @@ public class mySOMSphere {
 		modCnt += animTmMod;
 		if(modCnt > 1.0){	modCnt = 0;	}//blink every ~second
 		pa.pushMatrix();pa.pushStyle();		
-		pa.noFill();//fill(255*modCnt,255);
+		pa.noFill();
 		pa.stroke(255*modCnt, 255);		
-		pa.translate(dp.bmu.worldLoc); 
+		pa.translate(dp.bmu.mapLoc); 
 		pa.sphere(rad*(modCnt + 1.0f)); 
 		pa.popStyle();pa.popMatrix();
 	}
@@ -150,15 +150,13 @@ public class mySOMSphere {
 		pa.pushMatrix();pa.pushStyle();		
 		pa.setColorValFill(0,255); 
 		pa.setColorValStroke(0,255);		
-		pa.translate(dp.bmu.worldLoc); 
+		pa.translate(dp.bmu.mapLoc); 
 		pa.unSetCamOrient();
 		pa.scale(.75f);
 		pa.text(""+ID, rad,-rad,0); 
 		pa.popStyle();pa.popMatrix();
 	}
 
-	
-	
 	public void drawMeSmplsClrRnd_BMU(){
 		pa.pushMatrix();pa.pushStyle();
 		pa.setFill(clrVal,255); 
@@ -166,7 +164,7 @@ public class mySOMSphere {
 		pa.sphereDetail(ptDet);
 		for(dataPoint pt : smplPts){
 			pa.pushMatrix(); 
-			pa.translate(pt.bmu.worldLoc); 
+			pa.translate(pt.bmu.mapLoc); 
 			pa.sphere(ptRad); 
 			pa.popMatrix();
 		}

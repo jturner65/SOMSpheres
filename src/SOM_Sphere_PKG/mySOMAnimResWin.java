@@ -27,16 +27,16 @@ public class mySOMAnimResWin extends myDispWindow {
 			saveSphereDataIDX 	= 3,				//save sphere locations as training data on next draw cycle
 			currSphrDatSavedIDX = 4,				//current sphere data has been saved
 			useSphrLocAsClrIDX	= 5,				//should use sphere's location as both its and its samples' color
-			useSmplLocAsClrIDX  = 6,				//use all locations of samples as their colors, instead of sphere ctr's location
-			showSphereIdIDX		= 7,				//display the sphere's ID as a text tag
-			showSelSphereIDX	= 8,				//highlight the sphere with the selected idx
-			useSmplsForTrainIDX = 9,				//use surface samples, or sphere centers, for training data
-			showMapBasedLocsIDX = 10,				//show map-derived locations of training data instead of actual locations (or along with?)
-			mapBuiltToCurSphrsIDX = 11,				//the current sphere configuration has an underlying map built to it
-			regenSpheresIDX 	= 12,				//regenerate spheres with current specs
-			rndSphrDataIDX 		= 13;				//randomize order of training data as being saved
+			//useSmplLocAsClrIDX  = 6,				//use all locations of samples as their colors, instead of sphere's color
+			showSphereIdIDX		= 6,				//display the sphere's ID as a text tag
+			showSelSphereIDX	= 7,				//highlight the sphere with the selected idx
+			useSmplsForTrainIDX = 8,				//use surface samples, or sphere centers, for training data
+			showMapBasedLocsIDX = 9,				//show map-derived locations of training data instead of actual locations (or along with?)
+			mapBuiltToCurSphrsIDX = 10,				//the current sphere configuration has an underlying map built to it
+			regenSpheresIDX 	= 11,				//regenerate spheres with current specs
+			rndSphrDataIDX 		= 12;				//randomize order of training data as being saved
 	
-	public static final int numPrivFlags = 14;
+	public static final int numPrivFlags = 13;
 	
 	//represented random spheres
 	public mySOMSphere[] spheres;
@@ -64,16 +64,15 @@ public class mySOMAnimResWin extends myDispWindow {
 	//initialize all private-flag based UI buttons here - called by base class
 	public void initAllPrivBtns(){
 		truePrivFlagNames = new String[]{								//needs to be in order of privModFlgIdxs
-				"Debugging Spheres", "Regen Spheres", "Show Spheres","Showing Maps Locs", "Hide Labels", "Loc as Clr of Sphere", "Samples: Loc As Color",  
-				"Rnd Smpl Order", "HiLite Sel Sphr","Smpls As Train", "Save Data"
+				"Debugging Spheres", "Regen Spheres", "Show Spheres", "Hide Labels", "Location as Color",
+				"Rnd Smpl Order", "HiLiting Sel Sphr","Smpls As Train", "Save Data", "Showing Maps Locs"
 		};
 		falsePrivFlagNames = new String[]{			//needs to be in order of flags
-				"Debug Spheres", "Regen Spheres","Show Sample Pts","Showing Actual Locs","Show Labels","Rand Color for Sphere", "Samples: Sphr Color As Color",  
-				"Seq Smpl Order", "HiLite Off","Cntrs As Train", "Save Data"
+				"Debug Spheres", "Regen Spheres","Show Sample Pts","Show Labels","Randomized Color",
+				"Seq Smpl Order", "Turn HiLite On","Cntrs As Train","Save Data", "Showing Actual Locs"
 		};
-		privModFlgIdxs = new int[]{debugAnimIDX, regenSpheresIDX, showSamplePntsIDX,showMapBasedLocsIDX,showSphereIdIDX, 
-				useSphrLocAsClrIDX, useSmplLocAsClrIDX, showSelSphereIDX, 
-				rndSphrDataIDX, useSmplsForTrainIDX, saveSphereDataIDX};
+		privModFlgIdxs = new int[]{debugAnimIDX, regenSpheresIDX, showSamplePntsIDX,showSphereIdIDX, useSphrLocAsClrIDX, //useSmplLocAsClrIDX, 
+				rndSphrDataIDX,  showSelSphereIDX, useSmplsForTrainIDX,saveSphereDataIDX, showMapBasedLocsIDX};
 		numClickBools = privModFlgIdxs.length;	
 		initPrivBtnRects(0,numClickBools);
 	}//initAllPrivBtns
@@ -105,7 +104,7 @@ public class mySOMAnimResWin extends myDispWindow {
 			case currSphrDatSavedIDX 	: {if(val){pa.outStr2Scr("Current Sphere data saved"); } break;}
 			case showSphereIdIDX  		: { break;}//show labels for spheres
 			case useSphrLocAsClrIDX 	: { break;}		//color of spheres is location or is random
-			case useSmplLocAsClrIDX 	: { break;}		//color of samples is location or current sphere's color (either its location or random color)
+			//case useSmplLocAsClrIDX 	: { break;}		//color of samples is location or current sphere's color (either its location or random color)
 			case showSelSphereIDX 		: { break;}
 			case useSmplsForTrainIDX	: {break;}		//use surface samples for train and centers for test, or vice versa
 			case mapBuiltToCurSphrsIDX  : {break;}     //whether map has been built and loaded for current config of spheres
@@ -222,13 +221,11 @@ public class mySOMAnimResWin extends myDispWindow {
 					//draw spheres/samples based on map info - use 1st 3 features of non-scaled ftr data from map's nodes as x-y-z 
 					if(getPrivFlags(useSphrLocAsClrIDX)){
 						if(getPrivFlags(showSamplePntsIDX)){  //useSmplLocAsClrIDX
-							if(getPrivFlags(useSmplLocAsClrIDX)){	for(mySOMSphere s : spheres){s.drawMeSmplsClrSmplLoc_BMU();}} 
-							else{									for(mySOMSphere s : spheres){s.drawMeSmplsClrLoc_BMU();}}
+							for(mySOMSphere s : spheres){s.drawMeSmplsClrLoc_BMU();}
 						} else {									for(mySOMSphere s : spheres){s.drawMeClrLoc_BMU();}}
 					} else {
 						if(getPrivFlags(showSamplePntsIDX)){
-							if(getPrivFlags(useSmplLocAsClrIDX)){	for(mySOMSphere s : spheres){s.drawMeSmplsClrSmplLoc_BMU();}} 
-							else{									for(mySOMSphere s : spheres){s.drawMeSmplsClrRnd_BMU();}}
+							for(mySOMSphere s : spheres){s.drawMeSmplsClrRnd_BMU();}
 						} else {									for(mySOMSphere s : spheres){s.drawMeClrRnd_BMU();}}
 					}
 					if(getPrivFlags(showSphereIdIDX)){				for(mySOMSphere s : spheres){s.drawMeLabel_BMU();}	}
@@ -237,13 +234,11 @@ public class mySOMAnimResWin extends myDispWindow {
 			} else {				
 				if(getPrivFlags(useSphrLocAsClrIDX)){
 					if(getPrivFlags(showSamplePntsIDX)){  //useSmplLocAsClrIDX
-						if(getPrivFlags(useSmplLocAsClrIDX)){	for(mySOMSphere s : spheres){s.drawMeSmplsClrSmplLoc();}} 
-						else{									for(mySOMSphere s : spheres){s.drawMeSmplsClrLoc();}}
+						for(mySOMSphere s : spheres){s.drawMeSmplsClrLoc();}
 					} else {									for(mySOMSphere s : spheres){s.drawMeClrLoc();}}
 				} else {
 					if(getPrivFlags(showSamplePntsIDX)){
-						if(getPrivFlags(useSmplLocAsClrIDX)){	for(mySOMSphere s : spheres){s.drawMeSmplsClrSmplLoc();}} 
-						else{									for(mySOMSphere s : spheres){s.drawMeSmplsClrRnd();}}
+						for(mySOMSphere s : spheres){s.drawMeSmplsClrRnd();}
 					} else {									for(mySOMSphere s : spheres){s.drawMeClrRnd();}}
 				}
 				if(getPrivFlags(showSphereIdIDX)){				for(mySOMSphere s : spheres){s.drawMeLabel();}	}
