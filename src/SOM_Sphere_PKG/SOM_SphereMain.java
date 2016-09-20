@@ -704,7 +704,7 @@ import processing.opengl.*;
 		//set the height of each window that is above the popup window, to move up or down when it changes size
 		public void setWinsHeight(int popUpWinIDX){
 			for(int i =0;i<winDispIdxXOR.length;++i){//skip first window - ui menu - and last window - InstEdit window
-				dispWinFrames[winDispIdxXOR[i]].setRectDimsY( dispWinFrames[dispSOMMapIDX].getRectDim(1));
+				dispWinFrames[winDispIdxXOR[i]].setRectDimsY( dispWinFrames[popUpWinIDX].getRectDim(1));
 			}						
 		}			//specify mutually exclusive flags here
 		public int[] winFlagsXOR = new int[]{showAnimRes};//showSequence,showSphereUI};
