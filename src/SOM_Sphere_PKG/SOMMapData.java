@@ -174,10 +174,10 @@ public class SOMMapData {
 		//draw nodes
 		p.pushMatrix();p.pushStyle();
 		p.setFill(dpFillClr);p.setStroke(dpStkClr);
-		if(this.mseOvrData != null){mseOvrData.drawMeLblMap();}
+		if(this.mseOvrData != null){mseOvrData.drawMeLblMap(true);}
 		if(win.getPrivFlags(win.mapDrawTrainDatIDX)){
 			if(win.getPrivFlags(win.mapDrawTrDatLblIDX)){
-				for(int i=0;i<trainData.length;++i){trainData[i].drawMeLblMap();}} 
+				for(int i=0;i<trainData.length;++i){trainData[i].drawMeLblMap(false);}} 
 			else {for(int i=0;i<trainData.length;++i){trainData[i].drawMeMap();}}}
 		p.popStyle();p.popMatrix();
 		//draw map nodes, either with or without empty nodes
@@ -635,12 +635,13 @@ class dataPoint{
 		p.popStyle();p.popMatrix();		
 	}//drawMe
 	
-	public void drawMeLblMap(){
+	public void drawMeLblMap(boolean mseOvr){
 		p.pushMatrix();p.pushStyle();
 		//draw point of radius rad at maploc with label	
-		p.show(mapLoc, rad, label.clrVal,label.clrVal, SOM_SphereMain.gui_DarkGreen, label.label);
+		p.show(mapLoc, rad, 5, label.clrVal,label.clrVal, SOM_SphereMain.gui_DarkGreen, label.label, mseOvr);
 		p.popStyle();p.popMatrix();		
 	}//drawLabel
+	
 	
 	//override drawing in map nodes
 	public void drawMeMapClr(int[] clr){
@@ -653,8 +654,7 @@ class dataPoint{
 	public void drawMeLblMapClr(int[] clr){
 		p.pushMatrix();p.pushStyle();
 		//draw point of radius rad at maploc with label	
-		//p.show(mapLoc, rad, label.clrVal,label.clrVal, SOM_SphereMain.gui_DarkGreen, label.label);
-		p.show(mapLoc, rad, drawDet, clr, clr, SOM_SphereMain.gui_DarkGreen, label.label);
+		p.show(mapLoc, rad, drawDet, clr, clr, SOM_SphereMain.gui_DarkGreen, label.label, false);
 		p.popStyle();p.popMatrix();		
 	}//drawLabel
 	
@@ -748,10 +748,10 @@ class SOMmapNode extends dataPoint{
 		p.popStyle();p.popMatrix();		
 	}
 	@Override
-	public void drawMeLblMap(){
+	public void drawMeLblMap(boolean showBKGBox){
 		p.pushMatrix();p.pushStyle();
 		//draw point of radius rad at maploc with label	
-		p.show(mapLoc, getRad(), label.clrVal,label.clrVal, SOM_SphereMain.gui_FaintGray, label.label);
+		p.show(mapLoc, getRad(), 5, label.clrVal,label.clrVal, SOM_SphereMain.gui_FaintGray, label.label,showBKGBox);
 		p.popStyle();p.popMatrix();		
 	}//drawLabel
 

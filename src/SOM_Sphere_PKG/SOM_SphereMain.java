@@ -1246,33 +1246,38 @@ import processing.opengl.*;
 				translate(P.x,P.y,0); 
 				circle(0,0,r,r);				
 			}
-			popStyle(); popMatrix();} // render sphere of radius r and center P)
+			popStyle(); popMatrix();} // render sphere of radius r and center P)		
 		
+//		public void showx(myPointf P, float rad, int fclr, int sclr, int tclr, String txt) {
+//			pushMatrix(); pushStyle(); 
+//			if((fclr!= -1) && (sclr!= -1)){setColorValFill(fclr); setColorValStroke(sclr);}
+//			sphereDetail(5);
+//			translate(P.x,P.y,P.z);
+//			sphere(rad); 
+//			showOffsetText(1.2f * rad,tclr, txt);
+//			popStyle(); popMatrix();} // render sphere of radius r and center P)
 		
-		public void show(myPointf P, float rad, int fclr, int sclr, int tclr, String txt) {
+//		public void show(myPointf P, float rad, int[] fclr, int[] sclr, int tclr, String txt) {
+//			pushMatrix(); pushStyle(); 
+//			if((fclr!= null) && (sclr!= null)){setFill(fclr,255); setStroke(sclr,255);}
+//			sphereDetail(5);
+//			translate(P.x,P.y,P.z);
+//			sphere(rad); 
+//			showOffsetText(1.2f * rad,tclr, txt);
+//			popStyle(); popMatrix();} // render sphere of radius r and center P)
+		
+		//inRect means draw inside rectangle
+		public void show(myPointf P, float rad, int det, int[] fclr, int[] sclr, int tclr, String txt, boolean useBKGBox) {
 			pushMatrix(); pushStyle(); 
-			if((fclr!= -1) && (sclr!= -1)){setColorValFill(fclr); setColorValStroke(sclr);}
-			sphereDetail(5);
-			translate(P.x,P.y,P.z);
-			sphere(rad); 
-			showOffsetText(1.2f * rad,tclr, txt);
-			popStyle(); popMatrix();} // render sphere of radius r and center P)
-		
-		public void show(myPointf P, float rad, int[] fclr, int[] sclr, int tclr, String txt) {
-			pushMatrix(); pushStyle(); 
-			if((fclr!= null) && (sclr!= null)){setFill(fclr,255); setStroke(sclr,255);}
-			sphereDetail(5);
-			translate(P.x,P.y,P.z);
-			sphere(rad); 
-			showOffsetText(1.2f * rad,tclr, txt);
-			popStyle(); popMatrix();} // render sphere of radius r and center P)
-		
-		public void show(myPointf P, float rad, int det, int[] fclr, int[] sclr, int tclr, String txt) {
-			pushMatrix(); pushStyle(); 
-			setFill(fclr); 
-			setStroke(sclr);
-			sphereDetail(det);
 			translate(P.x,P.y,P.z); 
+			if(useBKGBox){
+				fill(255,255,255,150);
+				stroke(0,0,0,255);
+				rect(0,6.0f,txt.length()*7.8f,-15);
+				tclr = gui_Black;
+			} 
+			setFill(fclr,255); setStroke(sclr,255);			
+			sphereDetail(det);
 			sphere(rad); 
 			showOffsetText(1.2f * rad,tclr, txt);
 			popStyle(); popMatrix();} // render sphere of radius r and center P)
@@ -1343,20 +1348,20 @@ import processing.opengl.*;
 /////////////////////		
 ///color utils
 /////////////////////
-		public final int  // set more colors using Menu >  Tools > Color Selector
-		  black=0xff000000, 
-		  white=0xffFFFFFF,
-		  red=0xffFF0000, 
-		  green=0xff00FF00, 
-		  blue=0xff0000FF, 
-		  yellow=0xffFFFF00, 
-		  cyan=0xff00FFFF, 
-		  magenta=0xffFF00FF,
-		  grey=0xff818181, 
-		  orange=0xffFFA600, 
-		  brown=0xffB46005, 
-		  metal=0xffB5CCDE, 
-		  dgreen=0xff157901;
+//		public final int  // set more colors using Menu >  Tools > Color Selector
+//		  black=0xff000000, 
+//		  white=0xffFFFFFF,
+//		  red=0xffFF0000, 
+//		  green=0xff00FF00, 
+//		  blue=0xff0000FF, 
+//		  yellow=0xffFFFF00, 
+//		  cyan=0xff00FFFF, 
+//		  magenta=0xffFF00FF,
+//		  grey=0xff818181, 
+//		  orange=0xffFFA600, 
+//		  brown=0xffB46005, 
+//		  metal=0xffB5CCDE, 
+//		  dgreen=0xff157901;
 		//set color based on passed point r= x, g = z, b=y
 		public void fillAndShowLineByRBGPt(myPoint p, float x,  float y, float w, float h){
 			fill((int)p.x,(int)p.y,(int)p.z);
