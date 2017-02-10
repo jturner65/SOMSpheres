@@ -1,5 +1,6 @@
 package SOM_Sphere_PKG;
 
+import java.util.ArrayList;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class mySOMAnimResWin extends myDispWindow {
@@ -21,20 +22,20 @@ public class mySOMAnimResWin extends myDispWindow {
 
 	//private child-class flags
 	public static final int 
-			debugAnimIDX = 0,						//debug
-			sphereDataLoadedIDX = 1,				//all SOM spheres have been loaded
-			showSamplePntsIDX 	= 2,				//show spheres by polys or by sampled surface points
-			saveSphereDataIDX 	= 3,				//save sphere locations as training data on next draw cycle
-			currSphrDatSavedIDX = 4,				//current sphere data has been saved
-			useSphrLocAsClrIDX	= 5,				//should use sphere's location as both its and its samples' color
-			//useSmplLocAsClrIDX  = 6,				//use all locations of samples as their colors, instead of sphere's color
-			showSphereIdIDX		= 6,				//display the sphere's ID as a text tag
-			showSelSphereIDX	= 7,				//highlight the sphere with the selected idx
-			useSmplsForTrainIDX = 8,				//use surface samples, or sphere centers, for training data
-			showMapBasedLocsIDX = 9,				//show map-derived locations of training data instead of actual locations (or along with?)
-			mapBuiltToCurSphrsIDX = 10,				//the current sphere configuration has an underlying map built to it
-			regenSpheresIDX 	= 11,				//regenerate spheres with current specs
-			rndSphrDataIDX 		= 12;				//randomize order of training data as being saved
+		debugAnimIDX = 0,						//debug
+		sphereDataLoadedIDX = 1,				//all SOM spheres have been loaded
+		showSamplePntsIDX 	= 2,				//show spheres by polys or by sampled surface points
+		saveSphereDataIDX 	= 3,				//save sphere locations as training data on next draw cycle
+		currSphrDatSavedIDX = 4,				//current sphere data has been saved
+		useSphrLocAsClrIDX	= 5,				//should use sphere's location as both its and its samples' color
+		//useSmplLocAsClrIDX  = 6,				//use all locations of samples as their colors, instead of sphere's color
+		showSphereIdIDX		= 6,				//display the sphere's ID as a text tag
+		showSelSphereIDX	= 7,				//highlight the sphere with the selected idx
+		useSmplsForTrainIDX = 8,				//use surface samples, or sphere centers, for training data
+		showMapBasedLocsIDX = 9,				//show map-derived locations of training data instead of actual locations (or along with?)
+		mapBuiltToCurSphrsIDX = 10,				//the current sphere configuration has an underlying map built to it
+		regenSpheresIDX 	= 11,				//regenerate spheres with current specs
+		rndSphrDataIDX 		= 12;				//randomize order of training data as being saved
 	
 	public static final int numPrivFlags = 13;
 	
@@ -316,6 +317,17 @@ public class mySOMAnimResWin extends myDispWindow {
 //			//pa.outStr2Scr("sphere ui drag in world mouseClickIn3D : " + mouseClickIn3D.toStrBrf() + " mseDragInWorld : " + mseDragInWorld.toStrBrf());
 //			res = sphereCntls.get(curSelSphere).hndlMouseDragIndiv(mouseX, mouseY, pmouseX, pmouseY, mouseClickIn3D,curMseLookVec, mseDragInWorld);
 //		}
+		return res;
+	}
+	@Override
+	public void hndlFileLoadIndiv(String[] vals, int[] stIdx) {
+		
+	}
+
+	@Override
+	public ArrayList<String> hndlFileSaveIndiv() {
+		ArrayList<String> res = new ArrayList<String>();
+
 		return res;
 	}
 	

@@ -193,8 +193,7 @@ public abstract class myDispWindow {
 					this.uiClkCoords[3] += yOff;
 					startNewLine = true;					
 				}
-			}
-			
+			}			
 			oldBtnLen = btnLen;
 		}
 		if(lastBtnHalfStLine){//set last button full length if starting new line
@@ -340,6 +339,65 @@ public abstract class myDispWindow {
 		tmp = new myGUIObj(pa, this,i, guiObjName, xyDims[0], xyDims[1], xyDims[2], xyDims[3], guiMinMaxModVals, guiStVal, guiBoolVals, off);		
 		return tmp;
 	}
+	//this returns a formatted string holding the UI data
+	protected String getStrFromUIObj(int idx){
+		StringBuilder sb = new StringBuilder(400);
+		sb.append("ui_idx: ");
+		sb.append(idx);
+		sb.append(" |name: ");
+		sb.append(guiObjs[idx].name);
+		sb.append(" |value: ");
+		sb.append(guiObjs[idx].getVal());
+		sb.append(" |flags: ");
+		for(int i =0;i<guiObjs[idx].numFlags; ++i){
+			sb.append(" ");
+			sb.append((guiObjs[idx].getFlags(i) ? "true" : "false"));
+		}
+		return sb.toString().trim();		
+		
+	}//getStrFromUIObj
+		
+	//this sets the value of a gui object from the data held in a string
+	protected void setValFromFileStr(String str){
+		String[] toks = str.trim().split("\\|");
+		//window has no data values to load
+		if(toks.length==0){return;}
+		int uiIdx = Integer.parseInt(toks[0].split("\\s")[1].trim());
+		//String name = toks[3];
+		double uiVal = Double.parseDouble(toks[2].split("\\s")[1].trim());	
+		guiObjs[uiIdx].setVal(uiVal);
+		for(int i =0;i<guiObjs[uiIdx].numFlags; ++i){
+			guiObjs[uiIdx].setFlags(i, Boolean.parseBoolean(toks[3].split("\\s")[i].trim()));
+		}	
+		setUIWinVals(uiIdx);//update window's values with UI construct's values
+	}//setValFromFileStr
+
+	//take loaded params and process - stIdx will be idx of this window's name - move forward 1 to start on objects
+	protected void hndlFileLoad(String[] vals, int[] stIdx){
+		++stIdx[0];
+		//set values for ui sliders
+		while(!vals[stIdx[0]].contains(name + "_custUIComps")){
+			if(vals[stIdx[0]].trim() != ""){	setValFromFileStr(vals[stIdx[0]]);	}
+			++stIdx[0];
+		}
+		++stIdx[0];		
+		//handle window-specific UI components, if any
+		this.hndlFileLoadIndiv(vals, stIdx);
+	}//hndlFileLoad
+	
+	//accumulate array of params to save
+	protected ArrayList<String> hndlFileSave(){
+		ArrayList<String> res = new ArrayList<String>();
+		res.add(name);
+		for(int i=0;i<guiObjs.length;++i){	res.add(getStrFromUIObj(i));}		
+		//bound for custom components
+		res.add(name + "_custUIComps");
+		//call indiv handler
+		res.addAll(hndlFileSaveIndiv());
+		//add blank space
+		res.add("");
+		return res;
+	}//
 	
 	public float calcOffsetScale(double val, float sc, float off){float res =(float)val - off; res *=sc; return res+=off;}
 	public double calcDBLOffsetScale(double val, float sc, double off){double res = val - off; res *=sc; return res+=off;}
@@ -705,7 +763,7 @@ public abstract class myDispWindow {
 			//pa.outStr2Scr("before handle indiv drag traj");
 			mod = hndlMouseDragIndiv(mouseX, mouseY,pmouseX, pmouseY,mouseClickIn3D,mseDragInWorld,mseBtn);}		//handle specific, non-trajectory functionality for implementation of window
 		return mod;
-	}//handleMouseClick	
+	}//handleMouseDrag
 	
 	public void handleMouseRelease(){
 		if(!dispFlags[showIDX]){return;}
@@ -874,6 +932,11 @@ public abstract class myDispWindow {
 	protected abstract void processTrajIndiv(myDrawnSmplTraj drawnTraj);
 	
 	public abstract void clickDebug(int btnNum);
+	//file io used from selectOutput/selectInput - 
+	//take loaded params and process
+	protected abstract void hndlFileLoadIndiv(String[] vals, int[] stIdx);
+	//accumulate array of params to save
+	protected abstract ArrayList<String> hndlFileSaveIndiv();	
 	
 	protected abstract void initMe();
 	protected abstract void resizeMe(float scale);	
@@ -1221,7 +1284,17 @@ class mySideBarMenu extends myDispWindow{
 			pa.popStyle();	pa.popMatrix();						
 		}
 	}
-	
+	@Override
+	public void hndlFileLoadIndiv(String[] vals, int[] stIdx) {
+		
+	}
+
+	@Override
+	public ArrayList<String> hndlFileSaveIndiv() {
+		ArrayList<String> res = new ArrayList<String>();
+
+		return res;
+	}
 	@Override
 	public void drawClickableBooleans() {	}//this is only for non-sidebar menu windows, to display their own personal buttons
 	
@@ -1266,6 +1339,8 @@ class mySideBarMenu extends myDispWindow{
 		return res;
 	}
 }//mySideBarMenu
+
+
 
 //class holds trajctory and 4 macro cntl points, and handling for them
 class myDrawnSmplTraj {

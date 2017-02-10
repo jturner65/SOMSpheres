@@ -1,5 +1,6 @@
 package SOM_Sphere_PKG;
 
+import java.util.ArrayList;
 
 //window that accepts trajectory editing
 public class mySOMMapUIWin extends myDispWindow {
@@ -377,6 +378,18 @@ public class mySOMMapUIWin extends myDispWindow {
 	}
 	@Override
 	protected void hndlMouseRelIndiv() {	}	
+	@Override
+	public void hndlFileLoadIndiv(String[] vals, int[] stIdx) {
+		
+	}
+
+	@Override
+	public ArrayList<String> hndlFileSaveIndiv() {
+		ArrayList<String> res = new ArrayList<String>();
+
+		return res;
+	}
+	
 	@Override
 	protected myPoint getMouseLoc3D(int mouseX, int mouseY){return pa.P(mouseX,mouseY,0);}	
 	@Override

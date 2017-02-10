@@ -115,4 +115,4 @@ public class myGUIObj {
 		tmpRes.add("Value : "+ val +" Max Val : "+ maxVal + " Min Val : " + minVal+ " Mod multiplier : " + modMult);
 		return tmpRes.toArray(new String[0]);
 	}
-}
+}//class myGUIObj
