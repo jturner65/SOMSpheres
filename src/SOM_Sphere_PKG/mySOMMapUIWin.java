@@ -90,7 +90,7 @@ public class mySOMMapUIWin extends myDispWindow {
 		float width = rectDim[3]-(2*offset),//actually height, but want it square, and space is wider than high, so we use height as constraint - ends up being 834.8 x 834.8 with default screen dims
 		xStart = rectDim[0] + .5f*(rectDim[2] - width);
 		
-		dispFlags[canDrawTraj] = true;			//to edit instrument qualities need to use drawn trajectories		
+		setFlags(canDrawTraj, true);			//to edit instrument qualities need to use drawn trajectories		
 		//init specific sim flags
 		initPrivFlags(numPrivFlags);			
 		setPrivFlags(mapLoadFtrBMUsIDX,true);

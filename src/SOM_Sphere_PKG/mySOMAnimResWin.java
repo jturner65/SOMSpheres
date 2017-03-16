@@ -81,7 +81,7 @@ public class mySOMAnimResWin extends myDispWindow {
 	@Override
 	protected void initMe() {	
 		initUIBox();				//set up ui click region to be in sidebar menu below menu's entries			
-		dispFlags[trajDecays] = true;								//this window responds to travelling reticle/playing
+		setFlags(trajDecays, true);			//to edit instrument qualities need to use drawn trajectories		
 		curTrajAraIDX = 0;		
 		initPrivFlags(numPrivFlags);		
 	}

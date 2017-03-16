@@ -23,7 +23,7 @@ public abstract class myDispWindow {
 	public int lastAnimTime, stAnimTime;
 	
 	public int pFlagIdx;					//the flags idx in the PApplet that controls this window - use -1 for none	
-	public boolean[] dispFlags;	
+	public int[] dispFlags;	
 	public static final int 
 				showIDX 			= 0,			//whether or not to show this window
 				is3DWin 			= 1,
@@ -138,8 +138,9 @@ public abstract class myDispWindow {
 	//build UI clickable region
 	protected void initUIClickCoords(double x1, double y1, double x2, double y2){uiClkCoords[0] = x1;uiClkCoords[1] = y1;uiClkCoords[2] = x2; uiClkCoords[3] = y2;}
 	protected void initUIClickCoords(double[] cpy){	uiClkCoords[0] = cpy[0];uiClkCoords[1] = cpy[1];uiClkCoords[2] = cpy[2]; uiClkCoords[3] = cpy[3];}
-	public void initFlags(){dispFlags = new boolean[numDispFlags];for(int i =0; i<numDispFlags;++i){dispFlags[i]=false;}}		
-	
+	//public void initFlags(){dispFlags = new boolean[numDispFlags];for(int i =0; i<numDispFlags;++i){dispFlags[i]=false;}}		
+	//base class flags init
+	public void initFlags(){dispFlags = new int[1 + numDispFlags/32];for(int i =0; i<numDispFlags;++i){setFlags(i,false);}}		
 	//child-class flag init
 	protected void initPrivFlags(int numPrivFlags){privFlags = new int[1 + numPrivFlags/32]; for(int i = 0; i<numPrivFlags; ++i){setPrivFlags(i,false);}}
 	//set up initial colors for sim specific flags for display
@@ -203,6 +204,41 @@ public abstract class myDispWindow {
 		initPrivFlagColors();
 	}//initPrivBtnRects
 	
+	//set baseclass flags  //setFlags(showIDX, 
+	public void setFlags(int idx, boolean val){
+		int flIDX = idx/32, mask = 1<<(idx%32);
+		dispFlags[flIDX] = (val ?  dispFlags[flIDX] | mask : dispFlags[flIDX] & ~mask);
+		switch(idx){
+			case showIDX 			: {	
+				setClosedBox();
+				if(!val){//not showing window
+					closeMe();//specific instancing window implementation stuff
+				} else {
+					showMe();
+				}
+				break;}	
+			case is3DWin 			: {	break;}	
+			case closeable 			: {	break;}	
+			case hasScrollBars 		: {	break;}	
+			case canDrawTraj 		: {	break;}	
+			case drawingTraj 		: {	break;}	
+			case editingTraj 		: {	break;}	
+			case showTrajEditCrc 	: {	break;}	
+			case smoothTraj 		: {	break;}	
+			case trajDecays 		: {	break;}	
+			case trajPointsAreFlat 	: {	break;}	
+			case procMouseMove 		: {	break;}	
+			case mouseSnapMove		: {	break;}	
+			case uiObjMod			: {	break;}				
+		}				
+	}//setFlags
+	//get baseclass flag
+	public boolean getFlags(int idx){int bitLoc = 1<<(idx%32);return (dispFlags[idx/32] & bitLoc) == bitLoc;}	
+	//check list of flags
+	public boolean getAllFlags(int [] idxs){int bitLoc; for(int idx =0;idx<idxs.length;++idx){bitLoc = 1<<(idx%32);if ((dispFlags[idx/32] & bitLoc) != bitLoc){return false;}} return true;}
+	public boolean getAnyFlags(int [] idxs){int bitLoc; for(int idx =0;idx<idxs.length;++idx){bitLoc = 1<<(idx%32);if ((dispFlags[idx/32] & bitLoc) == bitLoc){return true;}} return false;}
+	
+	//set/get child class flags
 	public abstract void setPrivFlags(int idx, boolean val);
 	public boolean getPrivFlags(int idx){int bitLoc = 1<<(idx%32);return (privFlags[idx/32] & bitLoc) == bitLoc;}	
 	public boolean getAllPrivFlags(int [] idxs){int bitLoc; for(int idx =0;idx<idxs.length;++idx){bitLoc = 1<<(idx%32);if ((privFlags[idx/32] & bitLoc) != bitLoc){return false;}} return true;}
@@ -211,9 +247,9 @@ public abstract class myDispWindow {
 	public void initThisWin(boolean _canDrawTraj, boolean _trajIsFlat){
 		initTmpTrajStuff(_trajIsFlat);	
 		initFlags();	
-		dispFlags[canDrawTraj] = _canDrawTraj;
-		dispFlags[trajPointsAreFlat] = _trajIsFlat;
-		dispFlags[closeable] = true;
+		setFlags(canDrawTraj, _canDrawTraj);
+		setFlags(trajPointsAreFlat, _trajIsFlat);
+		setFlags(closeable, true);
 		initMe();
 		setupGUIObjsAras();
 		//record final y value for UI Objects
@@ -222,7 +258,7 @@ public abstract class myDispWindow {
 		mseClickCrnr = new float[2];		//this is offset for click to check buttons in x and y - since buttons for all menus will be in menubar, this should be the upper left corner of menubar - upper left corner of rect 
 		mseClickCrnr[0] = 0;
 		mseClickCrnr[1] = 0;		
-		if(dispFlags[hasScrollBars]){scbrs = new myScrollBars[numSubScrInWin];	for(int i =0; i<numSubScrInWin;++i){scbrs[i] = new myScrollBars(pa, this);}}
+		if(getFlags(hasScrollBars)){scbrs = new myScrollBars[numSubScrInWin];	for(int i =0; i<numSubScrInWin;++i){scbrs[i] = new myScrollBars(pa, this);}}
 	}//initThisWin
 
 	//for adding/deleting a screen programatically (loading a song) TODO
@@ -283,7 +319,7 @@ public abstract class myDispWindow {
 	//this will set the height of the rectangle enclosing this window - this will be called when a window pushes up or pulls down this window
 	//this resizes any drawn trajectories in this window, and calls the instance class's code for resizing
 	public void setRectDimsY(float height){
-		float oldVal = dispFlags[showIDX] ? rectDim[3] : rectDimClosed[3];
+		float oldVal = getFlags(showIDX) ? rectDim[3] : rectDimClosed[3];
 		rectDim[3] = height;
 		rectDimClosed[3] = height;
 		float scale  = height/oldVal;			//scale of modification - rescale the size and location of all components of this window by this
@@ -295,7 +331,7 @@ public abstract class myDispWindow {
 				if(null!=tmpAra){	for(int j =0; j<tmpAra.size();++j){		tmpAra.get(j).reCalcCntlPoints(scale);	}	}
 			}	
 		}
-		if(dispFlags[hasScrollBars]){for(int i =0; i<scbrs.length;++i){scbrs[i].setSize();}}
+		if(getFlags(hasScrollBars)){for(int i =0; i<scbrs.length;++i){scbrs[i].setSize();}}
 		resizeMe(scale);
 	}
 //	//resize and relocate UI objects in this window for resizing window
@@ -316,7 +352,7 @@ public abstract class myDispWindow {
 	//uiClkCoords needs to be derived before this is called by child class - maxY val(for vertical stack) or maxX val(for horizontal stack) will be derived here
 	protected void buildGUIObjs(String[] guiObjNames, double[] guiStVals, double[][] guiMinMaxModVals, boolean[][] guiBoolVals, double[] off){
 		myGUIObj tmp; 
-//		if(dispFlags[uiObjsAreVert]){		//vertical stack of UI components - clickable region x is unchanged, y changes with # of objects
+//		if(getFlags(uiObjsAreVert]){		//vertical stack of UI components - clickable region x is unchanged, y changes with # of objects
 			double stClkY = uiClkCoords[1];
 			for(int i =0; i< guiObjs.length; ++i){
 				guiObjs[i] = buildGUIObj(i,guiObjNames[i],guiStVals[i], guiMinMaxModVals[i], guiBoolVals[i], new double[]{uiClkCoords[0], stClkY, uiClkCoords[2], stClkY+yOff},off);
@@ -334,11 +370,13 @@ public abstract class myDispWindow {
 //			uiClkCoords[2] = stClkX;	
 //		}
 	}//
+	
 	protected myGUIObj buildGUIObj(int i, String guiObjName, double guiStVal, double[] guiMinMaxModVals, boolean[] guiBoolVals, double[] xyDims, double[] off){
 		myGUIObj tmp;
 		tmp = new myGUIObj(pa, this,i, guiObjName, xyDims[0], xyDims[1], xyDims[2], xyDims[3], guiMinMaxModVals, guiStVal, guiBoolVals, off);		
 		return tmp;
-	}
+	}	
+	
 	//this returns a formatted string holding the UI data
 	protected String getStrFromUIObj(int idx){
 		StringBuilder sb = new StringBuilder(400);
@@ -402,10 +440,10 @@ public abstract class myDispWindow {
 	public float calcOffsetScale(double val, float sc, float off){float res =(float)val - off; res *=sc; return res+=off;}
 	public double calcDBLOffsetScale(double val, float sc, double off){double res = val - off; res *=sc; return res+=off;}
 	//returns passed current passed dimension from either rectDim or rectDimClosed
-	public float getRectDim(int idx){return (dispFlags[showIDX] ? rectDim[idx] : rectDimClosed[idx]);	}
+	public float getRectDim(int idx){return ( getFlags(showIDX) ? rectDim[idx] : rectDimClosed[idx]);	}
 
 	public void setClosedBox(){
-		if(dispFlags[showIDX]){	closeBox[0] = rectDim[0]+rectDim[2]-clkBxDim;closeBox[1] = rectDim[1];	closeBox[2] = clkBxDim;	closeBox[3] = clkBxDim;} 
+		if( getFlags(showIDX)){	closeBox[0] = rectDim[0]+rectDim[2]-clkBxDim;closeBox[1] = rectDim[1];	closeBox[2] = clkBxDim;	closeBox[3] = clkBxDim;} 
 		else {					closeBox[0] = rectDimClosed[0]+rectDimClosed[2]-clkBxDim;closeBox[1] = rectDimClosed[1];	closeBox[2] = clkBxDim;	closeBox[3] = clkBxDim;}
 	}	
 	
@@ -425,7 +463,7 @@ public abstract class myDispWindow {
 	}
 	
 	//displays point with a name
-	protected void showKeyPt(myPoint a, String s, float rad){	pa.show(a,rad, s, new myVector(10,-5,0), SOM_SphereMain.gui_Cyan, dispFlags[trajPointsAreFlat]);	}	
+	protected void showKeyPt(myPoint a, String s, float rad){	pa.show(a,rad, s, new myVector(10,-5,0), SOM_SphereMain.gui_Cyan, getFlags(trajPointsAreFlat));	}	
 	//draw a series of strings in a column
 	protected void dispMenuTxtLat(String txt, int[] clrAra, boolean showSphere){
 		pa.setFill(clrAra, 255); 
@@ -496,10 +534,17 @@ public abstract class myDispWindow {
 	
 	//draw box to hide window
 	protected void drawMouseBox(){
-	    pa.setColorValFill(dispFlags[showIDX] ? SOM_SphereMain.gui_LightGreen : SOM_SphereMain.gui_DarkRed);
-		pa.rect(closeBox);
-		pa.setFill(strkClr);
-		pa.text(dispFlags[showIDX] ? "Close" : "Open", closeBox[0]-35, closeBox[1]+10);
+		if( getFlags(showIDX)){
+		    pa.setColorValFill(SOM_SphereMain.gui_LightGreen );
+			pa.rect(closeBox);
+			pa.setFill(strkClr);
+			pa.text("Close" , closeBox[0]-35, closeBox[1]+10);
+		} else {
+		    pa.setColorValFill(SOM_SphereMain.gui_DarkRed);
+			pa.rect(closeBox);
+			pa.setFill(strkClr);
+			pa.text("Open", closeBox[0]-35, closeBox[1]+10);			
+		}
 	}
 	public void drawSmall(){
 		pa.pushMatrix();				pa.pushStyle();	
@@ -515,13 +560,13 @@ public abstract class myDispWindow {
 			pa.text(winText.split(" ")[0], rectDimClosed[0]+10, rectDimClosed[1]+25);
 		}		
 		//close box drawing
-		if(dispFlags[closeable]){drawMouseBox();}
+		if(getFlags(closeable)){drawMouseBox();}
 		pa.hint(PConstants.ENABLE_DEPTH_TEST);
 		pa.popStyle();pa.popMatrix();		
 	}
 	
 	public void drawHeader(){
-		if(!dispFlags[showIDX]){return;}
+		if(!getFlags(showIDX)){return;}
 		pa.pushMatrix();				pa.pushStyle();			
 		//pa.outStr2Scr("Hitting hint code drawHeader");
 		pa.hint(PConstants.DISABLE_DEPTH_TEST);
@@ -529,9 +574,9 @@ public abstract class myDispWindow {
 		pa.setStroke(strkClr);
 		pa.setFill(strkClr);
 		if(winText.trim() != ""){	pa.ml_text(winText,  rectDim[0]+10,  rectDim[1]+10);}
-		if(dispFlags[canDrawTraj]){	drawNotifications();	}				//if this window accepts a drawn trajectory, then allow it to be displayed
-		if(dispFlags[closeable]){drawMouseBox();}
-		if(dispFlags[hasScrollBars]){scbrs[curDrnTrajScrIDX].drawMe();}
+		if(getFlags(canDrawTraj)){	drawNotifications();	}				//if this window accepts a drawn trajectory, then allow it to be displayed
+		if(getFlags(closeable)){drawMouseBox();}
+		if(getFlags(hasScrollBars)){scbrs[curDrnTrajScrIDX].drawMe();}
 		pa.lights();	
 		pa.hint(PConstants.ENABLE_DEPTH_TEST);
 		pa.popStyle();pa.popMatrix();	
@@ -541,23 +586,23 @@ public abstract class myDispWindow {
 		stAnimTime = pa.millis();
 		float animTimeMod = ((stAnimTime-lastAnimTime)/1000.0f);
 		lastAnimTime = pa.millis();
-		//if(dispFlags[showIDX]){pa.outStr2Scr("win ID : " + ID + " cur ui obj :"+ msClkObj);}
-		if(this.dispFlags[myDispWindow.is3DWin]){	draw3D(trans,animTimeMod);	} else {	draw2D(trans,animTimeMod);	}
+		//if(getFlags(showIDX)){pa.outStr2Scr("win ID : " + ID + " cur ui obj :"+ msClkObj);}
+		if(getFlags(is3DWin)){	draw3D(trans,animTimeMod);	} else {	draw2D(trans,animTimeMod);	}
 		//pa.outStr2Scr("ID:" + ID +" animTime mod : " + animTimeMod + " stAnimTime : " + stAnimTime+ " lastAnimTime : " + lastAnimTime);
 	}
 	
 	public void draw3D(myPoint trans, float animTimeMod){
-		if(!dispFlags[showIDX]){return;}
+		if(!getFlags(showIDX)){return;}
 		pa.pushMatrix();				pa.pushStyle();			
 		pa.setFill(fillClr);
 		pa.setStroke(strkClr);
-		//if(dispFlags[closeable]){drawMouseBox();}
+		//if(getFlags(closeable)){drawMouseBox();}
 		drawMe(animTimeMod);			//call instance class's draw
-		if(dispFlags[canDrawTraj]){
+		if(getFlags(canDrawTraj)){
 			pa.pushMatrix();				pa.pushStyle();	
 			drawTraj3D(animTimeMod, trans);			
 			pa.popStyle();pa.popMatrix();
-			if(dispFlags[showTrajEditCrc]){drawClkCircle();}
+			if(getFlags(showTrajEditCrc)){drawClkCircle();}
 		}				//if this window accepts a drawn trajectory, then allow it to be displayed
 		pa.popStyle();pa.popMatrix();		
 	}//draw3D
@@ -577,7 +622,7 @@ public abstract class myDispWindow {
 	}//drawTraj3D
 	
 	public void draw2D(myPoint trans, float animTimeMod){
-		if(!dispFlags[showIDX]){drawSmall();return;}
+		if(!getFlags(showIDX)){drawSmall();return;}
 		pa.pushMatrix();				pa.pushStyle();	
 		//pa.outStr2Scr("Hitting hint code draw2D");
 		pa.hint(PConstants.DISABLE_DEPTH_TEST);
@@ -587,9 +632,9 @@ public abstract class myDispWindow {
 		pa.rect(rectDim);
 		//close box drawing
 		drawMe(animTimeMod);			//call instance class's draw
-		if(dispFlags[canDrawTraj]){
+		if(getFlags(canDrawTraj)){
 			drawTraj(animTimeMod);			
-			if(dispFlags[showTrajEditCrc]){drawClkCircle();}
+			if(getFlags(showTrajEditCrc)){drawClkCircle();}
 		}				//if this window accepts a drawn trajectory, then allow it to be displayed
 		pa.hint(PConstants.ENABLE_DEPTH_TEST);
 		pa.popStyle();pa.popMatrix();
@@ -599,11 +644,11 @@ public abstract class myDispWindow {
 		//debug stuff
 		pa.pushMatrix();				pa.pushStyle();
 		pa.translate(rectDim[0]+20,rectDim[1]+rectDim[3]-70);
-		dispMenuTxtLat("Drawing curve", pa.getClr((dispFlags[myDispWindow.drawingTraj] ? SOM_SphereMain.gui_Green : SOM_SphereMain.gui_Red)), true);
-		//pa.show(new myPoint(0,0,0),4, "Drawing curve",new myVector(10,15,0),(dispFlags[this.drawingTraj] ? pa.gui_Green : pa.gui_Red));
+		dispMenuTxtLat("Drawing curve", pa.getClr((getFlags(drawingTraj) ? SOM_SphereMain.gui_Green : SOM_SphereMain.gui_Red)), true);
+		//pa.show(new myPoint(0,0,0),4, "Drawing curve",new myVector(10,15,0),(getFlags(this.drawingTraj) ? pa.gui_Green : pa.gui_Red));
 		//pa.translate(0,-30);
-		dispMenuTxtLat("Editing curve", pa.getClr((dispFlags[myDispWindow.editingTraj] ? SOM_SphereMain.gui_Green : SOM_SphereMain.gui_Red)), true);
-		//pa.show(new myPoint(0,0,0),4, "Editing curve",new myVector(10,15,0),(dispFlags[this.editingTraj] ? pa.gui_Green : pa.gui_Red));
+		dispMenuTxtLat("Editing curve", pa.getClr((getFlags(editingTraj) ? SOM_SphereMain.gui_Green : SOM_SphereMain.gui_Red)), true);
+		//pa.show(new myPoint(0,0,0),4, "Editing curve",new myVector(10,15,0),(getFlags(this.editingTraj) ? pa.gui_Green : pa.gui_Red));
 		pa.popStyle();pa.popMatrix();		
 	}
 
@@ -618,7 +663,7 @@ public abstract class myDispWindow {
 			editCrcCurRads[i] -= editCrcMods[i];
 			doneDrawing = false;
 		}
-		if(doneDrawing){dispFlags[showTrajEditCrc] = false;}
+		if(doneDrawing){setFlags(showTrajEditCrc, false);}
 		pa.popStyle();pa.popMatrix();		
 	}
 	
@@ -652,21 +697,21 @@ public abstract class myDispWindow {
 		return null;		
 	}
 	
-	//stuff to do when shown/hidden
-	public void setShow(boolean val){
-		dispFlags[showIDX]=val;
-		setClosedBox();
-		if(!dispFlags[showIDX]){//not showing window
-			closeMe();//specific instancing window implementation stuff
-		} else {
-			showMe();
-		}
-	}
+//	//stuff to do when shown/hidden
+//	public void setShow(boolean val){
+//		dispFlags[showIDX)=val;
+//		setClosedBox();
+//		if(!dispFlags[showIDX)){//not showing window
+//			closeMe();//specific instancing window implementation stuff
+//		} else {
+//			showMe();
+//		}
+//	}
 	
 	protected void toggleWindowState(){
 		//pa.outStr2Scr("Attempting to close window : " + this.name);
-		setShow(!dispFlags[showIDX]);
-		pa.setFlags(pFlagIdx, dispFlags[showIDX]);		//value has been changed above by close box
+		setFlags(showIDX,!getFlags(showIDX));
+		pa.setFlags(pFlagIdx, getFlags(showIDX));		//value has been changed above by close box
 	}
 	
 	protected boolean checkClsBox(int mouseX, int mouseY){
@@ -690,19 +735,18 @@ public abstract class myDispWindow {
 			}			
 		}
 		return mod;
-	}//checkUIButtons
-	
+	}//checkUIButtons	
 	
 	protected myPoint getMsePoint(myPoint pt){
-		return dispFlags[myDispWindow.is3DWin] ? getMouseLoc3D((int)pt.x, (int)pt.y) : pt;
+		return getFlags(myDispWindow.is3DWin) ? getMouseLoc3D((int)pt.x, (int)pt.y) : pt;
 	}
 
 	protected myPoint getMsePoint(int mouseX, int mouseY){
-		return dispFlags[myDispWindow.is3DWin] ? getMouseLoc3D(mouseX, mouseY) : pa.P(mouseX,mouseY,0);
+		return getFlags(myDispWindow.is3DWin) ? getMouseLoc3D(mouseX, mouseY) : pa.P(mouseX,mouseY,0);
 	}
 	public boolean handleMouseMove(int mouseX, int mouseY, myPoint mouseClickIn3D){
-		if(!dispFlags[showIDX]){return false;}
-		if((dispFlags[showIDX])&& (msePtInUIRect(mouseX, mouseY))){//in clickable region for UI interaction
+		if(!getFlags(showIDX)){return false;}
+		if((getFlags(showIDX))&& (msePtInUIRect(mouseX, mouseY))){//in clickable region for UI interaction
 			for(int j=0; j<guiObjs.length; ++j){if(guiObjs[j].checkIn(mouseX, mouseY)){	msOvrObj=j;return true;	}}
 		}	
 		if(hndlMouseMoveIndiv(mouseX, mouseY, mouseClickIn3D)){return true;}
@@ -714,13 +758,13 @@ public abstract class myDispWindow {
 	public boolean msePtInUIRect(int x, int y){return ((x > uiClkCoords[0])&&(x <= uiClkCoords[2])&&(y > uiClkCoords[1])&&(y <= uiClkCoords[3]));}	
 	public boolean handleMouseClick(int mouseX, int mouseY, myPoint mouseClickIn3D, int mseBtn){
 		boolean mod = false;
-		if((dispFlags[showIDX])&& (msePtInUIRect(mouseX, mouseY))){//in clickable region for UI interaction
+		if((getFlags(showIDX))&& (msePtInUIRect(mouseX, mouseY))){//in clickable region for UI interaction
 			for(int j=0; j<guiObjs.length; ++j){
 				if(guiObjs[j].checkIn(mouseX, mouseY)){	
 					if(pa.flags[pa.shiftKeyPressed]){//allows for click-mod
 						int mult = mseBtn * -2 + 1;	//+1 for left, -1 for right btn						
 						guiObjs[j].modVal(mult * pa.clickValModMult());
-						dispFlags[uiObjMod] = true;
+						setFlags(uiObjMod,true);
 					} else {										//has drag mod
 						msClkObj=j;
 					}
@@ -728,12 +772,12 @@ public abstract class myDispWindow {
 				}
 			}
 		}			
-		if(dispFlags[closeable]){mod = checkClsBox(mouseX, mouseY);}							//check if trying to close or open the window via click, if possible
-		if(!dispFlags[showIDX]){return mod;}
+		if(getFlags(closeable)){mod = checkClsBox(mouseX, mouseY);}							//check if trying to close or open the window via click, if possible
+		if(!getFlags(showIDX)){return mod;}
 		//pa.outStr2Scr("ID :" +ID +" before mouse click indiv mod "+ mod);
 		if(!mod){mod = hndlMouseClickIndiv(mouseX, mouseY,mouseClickIn3D, mseBtn);}			//if nothing triggered yet, then specific instancing window implementation stuff		
 		//pa.outStr2Scr("ID :" +ID +" after mouse click indiv mod "+ mod);
-		if((!mod) && (msePtInRect(mouseX, mouseY, this.rectDim)) && (dispFlags[canDrawTraj])){ 
+		if((!mod) && (msePtInRect(mouseX, mouseY, this.rectDim)) && (getFlags(canDrawTraj))){ 
 			myPoint pt =  getMsePoint(mouseX, mouseY);
 			if(null==pt){return false;}
 			mod = handleTrajClick(pa.flags[pa.altKeyPressed], pt);}			//click + alt for traj drawing : only allow drawing trajectory if it can be drawn and no other interaction has occurred
@@ -742,16 +786,16 @@ public abstract class myDispWindow {
 	//vector for drag in 3D
 	public boolean handleMouseDrag(int mouseX, int mouseY,int pmouseX, int pmouseY, myPoint mouseClickIn3D, myVector mseDragInWorld, int mseBtn){
 		boolean mod = false;
-		if(!dispFlags[showIDX]){return mod;}
+		if(!getFlags(showIDX)){return mod;}
 		//any generic dragging stuff - need flag to determine if trajectory is being entered
-		if(msClkObj!=-1){	guiObjs[msClkObj].modVal((mouseX-pmouseX)+(mouseY-pmouseY)*-5.0f);dispFlags[uiObjMod] = true; return true;}		
-		if(dispFlags[drawingTraj]){ 		//if drawing trajectory has started, then process it
+		if(msClkObj!=-1){	guiObjs[msClkObj].modVal((mouseX-pmouseX)+(mouseY-pmouseY)*-5.0f);setFlags(uiObjMod, true); return true;}		
+		if(getFlags(drawingTraj)){ 		//if drawing trajectory has started, then process it
 			//pa.outStr2Scr("drawing traj");
 			myPoint pt =  getMsePoint(mouseX, mouseY);
 			if(null==pt){return false;}
 			this.tmpDrawnTraj.addPoint(pt);
 			mod = true;
-		}else if(dispFlags[editingTraj]){		//if editing trajectory has started, then process it
+		}else if(getFlags(editingTraj)){		//if editing trajectory has started, then process it
 			//pa.outStr2Scr("edit traj");	
 			myPoint pt =  getMsePoint(mouseX, mouseY);
 			if(null==pt){return false;}
@@ -766,44 +810,46 @@ public abstract class myDispWindow {
 	}//handleMouseDrag
 	
 	public void handleMouseRelease(){
-		if(!dispFlags[showIDX]){return;}
-		if(dispFlags[uiObjMod]){
+		if(!getFlags(showIDX)){return;}
+		if(getFlags(uiObjMod)){
 			for(int i=0;i<guiObjs.length;++i){if(guiObjs[i].getFlags(myGUIObj.usedByWinsIDX)){setUIWinVals(i);}}
-			dispFlags[uiObjMod] = false;
+			setFlags(uiObjMod, false);
 			msClkObj = -1;	
 		}//some object was clicked - pass the values out to all windows
-		if (dispFlags[editingTraj]){    this.tmpDrawnTraj.endEditObj();}    //this process assigns tmpDrawnTraj to owning window's traj array
-		if (dispFlags[drawingTraj]){	this.tmpDrawnTraj.endDrawObj(getMsePoint(pa.Mouse()));}	//drawing curve
+		if (getFlags(editingTraj)){    this.tmpDrawnTraj.endEditObj();}    //this process assigns tmpDrawnTraj to owning window's traj array
+		if (getFlags(drawingTraj)){	this.tmpDrawnTraj.endDrawObj(getMsePoint(pa.Mouse()));}	//drawing curve
 		msClkObj = -1;	
 		hndlMouseRelIndiv();//specific instancing window implementation stuff
 		this.tmpDrawnTraj = null;
 	}//handleMouseRelease	
+
 	
 	public void endShiftKey(){
-		if(!dispFlags[showIDX]){return;}
+		if(!getFlags(showIDX)){return;}
 		//
 		endShiftKeyI();
 	}
 	public void endAltKey(){
-		if(!dispFlags[showIDX]){return;}
-		//if(dispFlags[drawingTraj]){drawnTrajAra[curDrnTrajScrIDX][curDrnTrajStaffIDX].endDrawObj();}	
-		if(dispFlags[drawingTraj]){this.tmpDrawnTraj.endDrawObj(getMsePoint(pa.Mouse()));}	
+		if(!getFlags(showIDX)){return;}
+		//if(getFlags(drawingTraj)){drawnTrajAra[curDrnTrajScrIDX][curDrnTrajStaffIDX].endDrawObj();}	
+		if(getFlags(drawingTraj)){this.tmpDrawnTraj.endDrawObj(getMsePoint(pa.Mouse()));}	
 		endAltKeyI();
 		this.tmpDrawnTraj = null;
 	}	
 	public void endCntlKey(){
-		if(!dispFlags[showIDX]){return;}
+		if(!getFlags(showIDX)){return;}
 		//
 		endCntlKeyI();
 	}	
+		
 	
 	//drawn trajectory stuff	
 	public void startBuildDrawObj(){
 		pa.flags[pa.drawing] = true;
 		//drawnTrajAra[curDrnTrajScrIDX][curDrnTrajStaffIDX].startBuildTraj();
-		tmpDrawnTraj= new myDrawnSmplTraj(pa,this,topOffY,trajFillClrCnst, trajStrkClrCnst, dispFlags[trajPointsAreFlat], !dispFlags[trajPointsAreFlat]);
+		tmpDrawnTraj= new myDrawnSmplTraj(pa,this,topOffY,trajFillClrCnst, trajStrkClrCnst, getFlags(trajPointsAreFlat), !getFlags(trajPointsAreFlat));
 		tmpDrawnTraj.startBuildTraj();
-		dispFlags[drawingTraj] = true;
+		setFlags(drawingTraj, true);
 	}
 	
 	//finds closest point to p in sPts - put dist in d
@@ -816,7 +862,7 @@ public abstract class myDispWindow {
 
 	//initialize circle so that it will draw at location of edit
 	public void setEditCueCircle(int idx,myPoint mse){
-		dispFlags[showTrajEditCrc] = true;
+		setFlags(showTrajEditCrc, true);
 		editCrcCtrs[idx].set(mse.x, mse.y, 0);
 		editCrcCurRads[idx] = editCrcRads[idx];
 	}
@@ -842,7 +888,7 @@ public abstract class myDispWindow {
 	}
 	
 	//set colors of the trajectory for this window
-	public void setTrajColors(int _tfc, int _tsc){trajFillClrCnst = _tfc;trajStrkClrCnst = _tsc;initTmpTrajStuff(dispFlags[trajPointsAreFlat]);}
+	public void setTrajColors(int _tfc, int _tsc){trajFillClrCnst = _tfc;trajStrkClrCnst = _tsc;initTmpTrajStuff(getFlags(trajPointsAreFlat));}
 	//get key used to access arrays in traj array
 	protected String getTrajAraKeyStr(int i){return trajNameAra[i];}
 	protected int getTrajAraIDXVal(String str){for(int i=0; i<trajNameAra.length;++i){if(trajNameAra[i].equals(str)){return i;}}return -1; }
@@ -953,7 +999,6 @@ public abstract class myDispWindow {
 		return res;
 	}
 }//dispWindow
-
 
 //displays sidebar menu of interaction and functionality
 class mySideBarMenu extends myDispWindow{
@@ -1086,7 +1131,7 @@ class mySideBarMenu extends myDispWindow{
 	
 	@Override
 	protected void initMe() {//init/reinit this window
-		dispFlags[closeable] = false;
+		setFlags(closeable, false);
 //		dispFlags[uiObjsAreVert] = true;
 		initPrivFlags(numPrivFlags);		
 	}	
@@ -1425,14 +1470,14 @@ class myDrawnSmplTraj {
 		drawnTraj.startDrawing();
 	}
 	public boolean startEditEndPoint(int idx){
-		editEndPt = idx; win.dispFlags[myDispWindow.editingTraj] = true;
+		editEndPt = idx; win.setFlags(myDispWindow.editingTraj, true);
 		//pa.outStr2Scr("Handle TrajClick 2 startEditEndPoint : " + name + " | Move endpoint : "+editEndPt);
 		return true;
 	}
 	//check if initiating an edit on an existing object, if so then set up edit
 	public boolean startEditObj(myPoint mse){
 		boolean doEdit = false; 
-		float chkDist = win.dispFlags[myDispWindow.is3DWin] ? msClkPt3DRad : msClkPtRad;
+		float chkDist = win.getFlags(myDispWindow.is3DWin) ? msClkPt3DRad : msClkPtRad;
 		//first check endpoints, then check curve points
 		double[] distTocPts = new double[1];			//using array as pointer, passing by reference
 		int cntpIdx = win.findClosestPt(mse, distTocPts, edtCrvEndPts);	
@@ -1444,14 +1489,14 @@ class myDrawnSmplTraj {
 			//pa.outStr2Scr("Handle TrajClick 2 startEditObj : " + name);
 			if(distToPts[0] < chkDist){//close enough to mod
 				win.setEditCueCircle(0,mse);
-				win.dispFlags[myDispWindow.editingTraj] = true;
+				win.setFlags(myDispWindow.editingTraj, true);
 				doEdit = true;
 				//pa.outStr2Scr("Handle TrajClick 3 startEditObj modPt : " + name + " : pIdx : "+ pIdx);
 				drawnTrajPickedIdx = pIdx;	
 				editEndPt = -1;
 			} else if (distToPts[0] < sqMsClkRad){//not close enough to mod but close to curve
 				win.setEditCueCircle(1,mse);
-				win.dispFlags[myDispWindow.smoothTraj] = true;
+				win.setFlags(myDispWindow.smoothTraj, true);
 			}
 		}
 		return doEdit;
@@ -1459,7 +1504,7 @@ class myDrawnSmplTraj {
 	
 	//returns true if within eps of any of the points of this trajector
 	public boolean clickedMe(myPoint mse){
-		float chkDist = win.dispFlags[myDispWindow.is3DWin] ? msClkPt3DRad : msClkPtRad;	
+		float chkDist = win.getFlags(myDispWindow.is3DWin) ? msClkPt3DRad : msClkPtRad;	
 		double[] distToPts = new double[1];			//using array as pointer, passing by reference
 		int cntpIdx = win.findClosestPt(mse, distToPts, edtCrvEndPts);	
 		if(distToPts[0] < chkDist){return true;}
@@ -1493,8 +1538,8 @@ class myDrawnSmplTraj {
 	//edit the trajectory used for UI input in this window
 	public boolean editTraj(int mouseX, int mouseY,int pmouseX, int pmouseY, myPoint mouseClickIn3D, myVector mseDragInWorld){
 		boolean mod = false;
-		if((drawnTrajPickedIdx == -1) && (editEndPt == -1) && (!win.dispFlags[myDispWindow.smoothTraj])){return mod;}			//neither endpoints nor drawn points have been edited, and we're not smoothing
-		myVector diff = win.dispFlags[myDispWindow.is3DWin] ? mseDragInWorld : pa.V(mouseX-pmouseX, mouseY-pmouseY,0);		
+		if((drawnTrajPickedIdx == -1) && (editEndPt == -1) && (!win.getFlags(myDispWindow.smoothTraj))){return mod;}			//neither endpoints nor drawn points have been edited, and we're not smoothing
+		myVector diff = win.getFlags(myDispWindow.is3DWin) ? mseDragInWorld : pa.V(mouseX-pmouseX, mouseY-pmouseY,0);		
 		//pa.outStr2Scr("Diff in editTraj for  " + name + "  : " +diff.toStrBrf());
 		//needs to be before templateZoneY check
 		if (editEndPt != -1){//modify scale of ornament here, or modify drawn trajectory	
@@ -1510,20 +1555,20 @@ class myDrawnSmplTraj {
 	
 	public void endEditObj(){
 		if((drawnTrajPickedIdx != -1) || (editEndPt != -1)
-			|| ( win.dispFlags[myDispWindow.smoothTraj])){//editing curve
+			|| ( win.getFlags(myDispWindow.smoothTraj))){//editing curve
 			drawnTraj.remakeDrawnTraj(false);
 			rebuildDrawnTraj();		
 		}
-//		else if( win.dispFlags[myDispWindow.smoothTraj]){		
+//		else if( win.getFlags(myDispWindow.smoothTraj)){		
 //			drawnTraj.remakeDrawnTraj(false);	
 //			rebuildDrawnTraj();	
 //		}
 		//pa.outStr2Scr("In Traj : " + this.ID + " endEditObj ");
-		win.processTrajectory(this);//dispFlags[trajDirty] = true;
+		win.processTrajectory(this);//dispFlags[trajDirty, true);
 		drawnTrajPickedIdx = -1;
 		editEndPt = -1;
-		win.dispFlags[myDispWindow.editingTraj] = false;
-		win.dispFlags[myDispWindow.smoothTraj] = false;
+		win.setFlags(myDispWindow.editingTraj, false);
+		win.setFlags(myDispWindow.smoothTraj, false);
 	}
 	
 	public void endDrawObj(myPoint endPoint){
@@ -1541,7 +1586,7 @@ class myDrawnSmplTraj {
 		} else {
 			drawnTraj = new myVariStroke(pa, pa.V(pa.c.drawSNorm),fillClrCnst, strkClrCnst);
 		}
-		win.dispFlags[myDispWindow.drawingTraj] = false;
+		win.setFlags(myDispWindow.drawingTraj, false);
 	}//endDrawObj
 	
 	public void addPoint(myPoint mse){

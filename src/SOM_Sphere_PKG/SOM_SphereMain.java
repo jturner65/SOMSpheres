@@ -143,7 +143,7 @@ public class SOM_SphereMain extends PApplet {
 	//	if (cyclModCmp) {															//if drawing this frame, draw results of calculations								
 			//background(bground[0],bground[1],bground[2],bground[3]);				//if refreshing screen, this clears screen, sets background
 			pushMatrix();pushStyle();
-			for(int i =1; i<numDispWins; ++i){if((isShowingWindow(i)) && (dispWinFrames[i].dispFlags[myDispWindow.is3DWin])){dispWinFrames[i].draw(myPoint._add(sceneCtrVals[sceneIDX],focusTar));}}
+			for(int i =1; i<numDispWins; ++i){if((isShowingWindow(i)) && (dispWinFrames[i].getFlags(myDispWindow.is3DWin))){dispWinFrames[i].draw(myPoint._add(sceneCtrVals[sceneIDX],focusTar));}}
 			popStyle();popMatrix();
 			drawAxes(100,3, new myPoint(-c.viewDimW/2.0f+40,0.0f,0.0f), 200, false); 		//for visualisation purposes and to show movement and location in otherwise empty scene
 	//	}
@@ -168,7 +168,7 @@ public class SOM_SphereMain extends PApplet {
 	//if should show problem # i
 	public boolean isShowingWindow(int i){return flags[(i+this.showUIMenu)];}//showUIMenu is first flag of window showing flags
 	public void drawUI(){					
-		for(int i =1; i<numDispWins; ++i){if ( !(dispWinFrames[i].dispFlags[myDispWindow.is3DWin])){dispWinFrames[i].draw(sceneCtrVals[sceneIDX]);}}
+		for(int i =1; i<numDispWins; ++i){if ( !(dispWinFrames[i].getFlags(myDispWindow.is3DWin))){dispWinFrames[i].draw(sceneCtrVals[sceneIDX]);}}
 		//dispWinFrames[0].draw(sceneCtrVals[sceneIDX]);
 		for(int i =1; i<numDispWins; ++i){dispWinFrames[i].drawHeader();}
 		//menu
@@ -301,10 +301,11 @@ public class SOM_SphereMain extends PApplet {
 			((mySideBarMenu)dispWinFrames[dispMenuIDX]).guiBtnSt[mySideBarMenu.btnShowWinIdx][btn] = val;
 		} else {//called from clicking on buttons in UI
 			boolean bVal = (val == 1?  false : true);
-			switch(btn){
-				case 0 : {setFlags(showAnimRes, bVal);break;}
-				case 1 : {setFlags(showSOMMapUI, bVal);break;}
-			}
+			setFlags(10+btn, bVal);
+//			switch(btn){
+//				case 0 : {setFlags(showAnimRes, bVal);break;}
+//				case 1 : {setFlags(showSOMMapUI, bVal);break;}
+//			}
 		}
 	}//handleShowWin
 	
@@ -314,12 +315,7 @@ public class SOM_SphereMain extends PApplet {
 		if(!callFlags){
 			((mySideBarMenu)dispWinFrames[dispMenuIDX]).guiBtnSt[mySideBarMenu.btnDBGSelCmpIdx][btn] = val;
 		} else {
-			switch(btn){
-				case 0 : {dispWinFrames[curFocusWin].clickDebug(btn) ;break;}
-				case 1 : {dispWinFrames[curFocusWin].clickDebug(btn) ;break;}
-				case 2 : {dispWinFrames[curFocusWin].clickDebug(btn) ;break;}
-				case 3 : {dispWinFrames[curFocusWin].clickDebug(btn) ;break;}
-			}
+			dispWinFrames[curFocusWin].clickDebug(btn) ;
 		}
 	}//handleAddDelSelCmp	
 	
@@ -388,7 +384,7 @@ public class SOM_SphereMain extends PApplet {
 		
 		for(int i =0; i < numDispWins; ++i){
 			dispWinFrames[i].initDrwnTrajs();
-			dispWinFrames[i].dispFlags[myDispWindow.is3DWin] = dispWinIs3D[i];
+			dispWinFrames[i].setFlags(myDispWindow.is3DWin, dispWinIs3D[i]);
 			dispWinFrames[i].setTrajColors(winTrajFillClrs[i], winTrajStrkClrs[i]);
 		}				
 		//load initial map data in mySOMMapUIWin
@@ -690,10 +686,10 @@ public class SOM_SphereMain extends PApplet {
 			case runSim			: {break;}// handleTrnsprt((val ? 2 : 1) ,(val ? 1 : 0),false); break;}		//anything special for runSim	
 			//case flipDrawnTraj		: { dispWinFrames[dispPianoRollIDX].rebuildDrawnTraj();break;}						//whether or not to flip the drawn melody trajectory, width-wise
 			case flipDrawnTraj		: { for(int i =1; i<dispWinFrames.length;++i){dispWinFrames[i].rebuildAllDrawnTrajs();}break;}						//whether or not to flip the drawn melody trajectory, width-wise
-			case showUIMenu 	    : { dispWinFrames[dispMenuIDX].setShow(val);    break;}											//whether or not to show the main ui window (sidebar)
+			case showUIMenu 	    : { dispWinFrames[dispMenuIDX].setFlags(myDispWindow.showIDX,val);    break;}											//whether or not to show the main ui window (sidebar)
 			
 			case showAnimRes		: {setWinFlagsXOR(dispAnimResIDX, val); break;}
-			case showSOMMapUI 		: {dispWinFrames[dispSOMMapIDX].setShow(val);handleShowWin(dispSOMMapIDX-1 ,(val ? 1 : 0),false); setWinsHeight(dispSOMMapIDX); break;}	//show InstEdit window
+			case showSOMMapUI 		: {dispWinFrames[dispSOMMapIDX].setFlags(myDispWindow.showIDX,val);handleShowWin(dispSOMMapIDX-1 ,(val ? 1 : 0),false); setWinsHeight(dispSOMMapIDX); break;}	//show InstEdit window
 	
 			//case useDrawnVels 		: {for(int i =1; i<dispWinFrames.length;++i){dispWinFrames[i].rebuildAllDrawnTrajs();}break;}
 			default : {break;}
@@ -714,9 +710,9 @@ public class SOM_SphereMain extends PApplet {
 		if(val){//turning one on
 			//turn off not shown, turn on shown				
 			for(int i =0;i<winDispIdxXOR.length;++i){//skip first window - ui menu - and last window - InstEdit window
-				if(winDispIdxXOR[i]!= idx){dispWinFrames[winDispIdxXOR[i]].setShow(false);handleShowWin(i ,0,false); flags[winFlagsXOR[i]] = false;}
+				if(winDispIdxXOR[i]!= idx){dispWinFrames[winDispIdxXOR[i]].setFlags(myDispWindow.showIDX,false);handleShowWin(i ,0,false); flags[winFlagsXOR[i]] = false;}
 				else {
-					dispWinFrames[idx].setShow(true);
+					dispWinFrames[idx].setFlags(myDispWindow.showIDX,true);
 					handleShowWin(i ,1,false); 
 					flags[winFlagsXOR[i]] = true;
 					curFocusWin = winDispIdxXOR[i];
