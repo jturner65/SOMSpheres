@@ -437,9 +437,12 @@ public class SOM_SphereMain extends PApplet {
 	
 	public dataPoint[] getSphrWinTrainData(){return ((mySOMAnimResWin)dispWinFrames[dispAnimResIDX]).sphereTrainData;}
 	public dataPoint[] getSphrWinTestData(){return ((mySOMAnimResWin)dispWinFrames[dispAnimResIDX]).sphereTestData;}
+
+	
 	//////////////////////////////////////////
 	/// graphics and base functionality utilities and variables
 	//////////////////////////////////////////
+	public static final int txtSz = 10;
 	//constant path strings for different file types
 	public static final String fileDelim = "\\";	
 	//display-related size variables
@@ -657,6 +660,7 @@ public class SOM_SphereMain extends PApplet {
 		initBoolFlags();
 		camVals = new float[]{width/2.0f, height/2.0f, (height/2.0f) / tan(PI/6.0f), width/2.0f, height/2.0f, 0, 0, 1, 0};
 		showInfo = true;
+		textSize(txtSz);
 		outStr2Scr("Current sketchPath " + sketchPath());
 		textureMode(NORMAL);			
 		rectMode(CORNER);	
