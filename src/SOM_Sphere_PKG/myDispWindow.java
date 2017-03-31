@@ -244,12 +244,17 @@ public abstract class myDispWindow {
 	public boolean getAllPrivFlags(int [] idxs){int bitLoc; for(int idx =0;idx<idxs.length;++idx){bitLoc = 1<<(idx%32);if ((privFlags[idx/32] & bitLoc) != bitLoc){return false;}} return true;}
 	public boolean getAnyPrivFlags(int [] idxs){int bitLoc; for(int idx =0;idx<idxs.length;++idx){bitLoc = 1<<(idx%32);if ((privFlags[idx/32] & bitLoc) == bitLoc){return true;}} return false;}
 
-	public void initThisWin(boolean _canDrawTraj, boolean _trajIsFlat){
+	public void initThisWin(boolean _canDrawTraj, boolean _trajIsFlat){initThisWin(_canDrawTraj, _trajIsFlat, false);}
+	public void initThisWin(boolean _canDrawTraj, boolean _trajIsFlat, boolean _isMenu){
 		initTmpTrajStuff(_trajIsFlat);	
 		initFlags();	
 		setFlags(canDrawTraj, _canDrawTraj);
 		setFlags(trajPointsAreFlat, _trajIsFlat);
 		setFlags(closeable, true);
+		if(!_isMenu){
+			initUIBox();				//set up ui click region to be in sidebar menu below menu's entries - do not do here for sidebar
+		}
+		curTrajAraIDX = 0;		
 		initMe();
 		setupGUIObjsAras();
 		//record final y value for UI Objects
@@ -1101,7 +1106,7 @@ class mySideBarMenu extends myDispWindow{
 				SOM_SphereMain.gui_Black,									//not clicked button color
 				SOM_SphereMain.gui_Black,									//clicked button color
 			};			
-		super.initThisWin(_canDrawTraj, false);
+		super.initThisWin(_canDrawTraj, false, true);
 	}
 	
 	//set up initial colors for papplet's flags for display

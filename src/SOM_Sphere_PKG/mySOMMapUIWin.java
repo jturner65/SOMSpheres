@@ -85,7 +85,7 @@ public class mySOMMapUIWin extends myDispWindow {
 	}//initAllPrivBtns
 
 	protected void initMe() {
-		initUIBox();				//set up ui click region to be in sidebar menu below menu's entries	
+		//initUIBox();				//set up ui click region to be in sidebar menu below menu's entries	
 		float offset = 20;
 		float width = rectDim[3]-(2*offset),//actually height, but want it square, and space is wider than high, so we use height as constraint - ends up being 834.8 x 834.8 with default screen dims
 		xStart = rectDim[0] + .5f*(rectDim[2] - width);
