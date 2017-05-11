@@ -277,10 +277,12 @@ public class dataLoader implements Runnable {
 			Tuple<Integer,Integer> mapLoc = new Tuple<Integer, Integer>(Integer.parseInt(tkns[2]),Integer.parseInt(tkns[1]));//map locations in bmu data are in (y,x) order (row major)
 			SOMmapNode tmpMapNode = map.MapNodes.get(mapLoc);
 			if(null==tmpMapNode){ p.pr("!!Map node stated as best matching unit for training example " + tkns[0] + " not found in map ... somehow. "); return false;}//catastrophic error shouldn't happen
-			dataPoint tmpDP = map.trainData[Integer.parseInt(tkns[0])];
-			if(null==tmpDP){ p.pr("!!Training Datapoint given by idx in BMU file str tok : " + tkns[0] + " of string : --" + strs[i] + "-- not found in training data. "); return false;}//catastrophic error shouldn't happen
+			Integer dpIdx = Integer.parseInt(tkns[0]);
+			//dataPoint tmpDP = map.trainData[dpIdx];
+			if(null==map.trainData[dpIdx]){ p.pr("!!Training Datapoint given by idx in BMU file str tok : " + tkns[0] + " of string : --" + strs[i] + "-- not found in training data. "); return false;}//catastrophic error shouldn't happen
 			//passing per-ftr variance for chi sq distance
-			tmpDP.setBMU(tmpMapNode, map.map_ftrsVar);
+			//tmpDP.setBMU(tmpMapNode, map.map_ftrsVar);
+			map.trainData[dpIdx].setBMU(tmpMapNode, map.map_ftrsVar);
 			map.nodesWithEx.add(tmpMapNode);
 			map.nodesWithNoEx.remove(tmpMapNode);
 			//p.pr("Tuple "  + mapLoc + " from str @ i-2 = " + (i-2) + " node : " + tmpMapNode.toString());
@@ -292,7 +294,7 @@ public class dataLoader implements Runnable {
 			for(SOMmapNode node2 : map.nodesWithEx){
 				float dist = getSqMapDist(node2, node);			//actual map topology dist - need to handle wrapping!
 				//if(dist <= nodeDistThresh){					//pxl distance
-					node.addBMUExample(dist, node2);			//adds a node we know has a label
+					node.addBMUExample(dist, node2);			//adds a node we know has a label - ugh
 				//}
 			}			
 		}

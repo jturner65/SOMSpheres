@@ -125,11 +125,13 @@ public class mySOMSphere {
 ///////////////BMU / datapoint drawing
 	public void drawMeClrRnd_BMU(){
 		pa.pushMatrix();pa.pushStyle();		
+		//TODO dp.bmu is null by here.
 			pa.show(dp.bmu.worldLoc, rad, sphrDet, clrVal, clrVal);		//show main sphere in random color
 		pa.popStyle();pa.popMatrix();
 	}//
 	public void drawMeClrLoc_BMU(){
 		pa.pushMatrix();pa.pushStyle();		
+		//TODO dp.bmu is null by here.
 			pa.show(dp.bmu.worldLoc, rad, sphrDet, locClrAra, locClrAra);		//show main sphere in location color
 		pa.popStyle();pa.popMatrix();
 	}//
