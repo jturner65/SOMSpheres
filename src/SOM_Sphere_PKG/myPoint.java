@@ -52,8 +52,8 @@ public class myPoint {
 	
 	public void _sub(double _x, double _y, double _z){ this.x -= _x; this.y -= _y; this.z -= _z;  }                                                                   //_sub 3 args
 	public void _sub(myPoint v){ this.x -= v.x; this.y -= v.y; this.z -= v.z;  }                                                                           //_sub 1 arg 
+	public static myPoint _sub(myPoint p, myPoint q){ myPoint result = new myPoint(p.x - q.x, p.y - q.y, p.z - q.z); return result;}
 	public static void _sub(myPoint p, myPoint q, myPoint r){ myPoint result = new myPoint(p.x - q.x, p.y - q.y, p.z - q.z); r.set(result);}       //2 pt src, 1 pt dest  	
-	public static myPoint _sub(myPoint p, myPoint q){ myPoint result = new myPoint(p.x - q.x, p.y - q.y, p.z - q.z); return result;}       //2 pt src, 1 pt dest  	
 
 	public myPoint cloneMe(){myPoint retVal = new myPoint(this.x, this.y, this.z); return retVal;}  
 	
@@ -123,12 +123,13 @@ class myPointf {
 	public static myPointf _add(myPointf O, float a, myVectorf I, float b, myVectorf J, float c, myVectorf K) {	return new myPointf(O.x+a*I.x+b*J.x+c*K.x,O.y+b*I.y+b*J.y+c*K.y,O.z+b*I.z+b*J.z+c*K.z);} // O+xI+yJ+kZ
 	
 	public static void _add(myPointf p, myPointf q, myPointf r){ myPointf result = new myPointf(p.x + q.x, p.y + q.y, p.z + q.z); r.set(result);}       	//2 pt src, 1 pt dest  
+	public static myPointf _add(myPoint p, myPointf q){ myPointf result = new myPointf(p.x + q.x, p.y + q.y, p.z + q.z); return result;}
 	public static myPointf _add(myPointf p, myPointf q){ myPointf result = new myPointf(p.x + q.x, p.y + q.y, p.z + q.z); return result;}
 	
 	public void _sub(float _x, float _y, float _z){ this.x -= _x; this.y -= _y; this.z -= _z;  }                                                                   //_sub 3 args
 	public void _sub(myPointf v){ this.x -= v.x; this.y -= v.y; this.z -= v.z;  }                                                                           //_sub 1 arg 
+	public static myPointf _sub(myPointf p, myPointf q){ myPointf result = new myPointf(p.x - q.x, p.y - q.y, p.z - q.z); return result;}
 	public static void _sub(myPointf p, myPointf q, myPointf r){ myPointf result = new myPointf(p.x - q.x, p.y - q.y, p.z - q.z); r.set(result);}       //2 pt src, 1 pt dest  	
-	public static myPointf _sub(myPointf p, myPointf q){ myPointf result = new myPointf(p.x - q.x, p.y - q.y, p.z - q.z); return result;}       //2 pt src, 1 pt dest  	
 
 	public myPointf cloneMe(){myPointf retVal = new myPointf(this.x, this.y, this.z); return retVal;}  
 	
@@ -197,6 +198,7 @@ class myVector extends myPoint{
 	public void _add(myVector v){ this.x += v.x; this.y += v.y; this.z += v.z;  this._mag();  }                                                 //_add 1 arg  
 	public void _add(myVectorf v){ this.x += v.x; this.y += v.y; this.z += v.z;  this._mag();  }                                                 //_add 1 arg  
 	public static myVector _add(myVector p, myVector q){ myVector result = new myVector(p.x + q.x, p.y + q.y, p.z + q.z); return result;}                	//2 vec
+	public static myVector _add(myPoint p, myVector q){ myVector result = new myVector(p.x + q.x, p.y + q.y, p.z + q.z); return result;}                	//2 vec
 	public static void _add(myVector p, myVector q, myVector r){ myVector result = new myVector(p.x + q.x, p.y + q.y, p.z + q.z); r.set(result);}       	//2 vec src, 1 vec dest  
 	
 	public void _sub(double _x, double _y, double _z){ super._sub(_x, _y, _z);  this._mag(); }                                                                   //_sub 3 args
@@ -298,6 +300,7 @@ class myVectorf extends myPointf{
 	myVectorf(myVector p){ this((float)p.x, (float)p.y, (float)p.z); }                                                                                                           	//constructor 1 arg  
 	myVectorf(){ this(0,0,0);}                                                                                                                               //constructor 0 args
 	myVectorf(myPointf a, myPointf b){this(b.x-a.x,b.y-a.y,b.z-a.z);}			//vector from a->b
+	myVectorf(myPoint a, myPointf b){this(b.x-a.x,b.y-a.y,b.z-a.z);}			//vector from a->b
 	myVectorf(myPointf a){this(a.x,a.y,a.z);}			//vector from 0->a
 	
 	myVectorf(myVectorf a, float _y, myVectorf b) {super(a,_y,b);this._mag();	}//interp cnstrctr
@@ -320,6 +323,7 @@ class myVectorf extends myPointf{
 	public void _add(float _x, float _y, float _z){ super._add(_x, _y, _z); this._mag(); }                                            //_add 3 args
 	public void _add(myVectorf v){ this.x += v.x; this.y += v.y; this.z += v.z;  this._mag();  }                                                 //_add 1 arg  
 	public static myVectorf _add(myVectorf p, myVectorf q){ myVectorf result = new myVectorf(p.x + q.x, p.y + q.y, p.z + q.z); return result;}                	//2 vec
+	public static myVectorf _add(myPointf p, myVectorf q){ myVectorf result = new myVectorf(p.x + q.x, p.y + q.y, p.z + q.z); return result;}                	//2 vec
 	public static void _add(myVectorf p, myVectorf q, myVectorf r){ myVectorf result = new myVectorf(p.x + q.x, p.y + q.y, p.z + q.z); r.set(result);}       	//2 vec src, 1 vec dest  
 	
 	public void _sub(float _x, float _y, float _z){ super._sub(_x, _y, _z);  this._mag(); }                                                                   //_sub 3 args
@@ -360,8 +364,8 @@ class myVectorf extends myPointf{
 	public static myVectorf _elemMult(myVectorf a, myVectorf b){return new myVectorf(a.x*b.x, a.y*b.y, a.z*b.z);}
 	
 	public static float _det3(myVectorf U, myVectorf V) {float udv = U._dot(V); return (float)(Math.sqrt(U._dot(U)*V._dot(V) - (udv*udv))); };                                // U|V det product
-	public static float _mixProd(myVectorf U, myVectorf V, myVectorf W) {return U._dot(myVectorf._cross(V,W)); };                                                 // (UxV)*W  mixed product, determinant - measures 6x the volume of the parallelapiped formed by myVectortors
-	public float _dot(myVectorf b){return ((this.x * b.x) + (this.y * b.y) + (this.z * b.z));}																	//dot product
+	public static float _mixProd(myVectorf U, myVectorf V, myVectorf W) {return U._dot(myVectorf._cross(V,W)); };
+	public float _dot(myVectorf b){return ((this.x * b.x) + (this.y * b.y) + (this.z * b.z));}
 	public static float _dot(myVectorf a, myVectorf b){		return a._dot(b);}
 	
 	public static float _angleBetween(myVectorf v1, myVectorf v2) {

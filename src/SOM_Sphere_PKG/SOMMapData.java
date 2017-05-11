@@ -284,14 +284,18 @@ public class SOMMapData {
 		float xInterp = x - xInt, yInterp = y - yInt;//, xIsq = xInterp*xInterp, yIsq = yInterp*yInterp,oneMxIsq = (1-xInterp)*(1-xInterp),oneMyIsq = (1-yInterp)*(1-yInterp);
 		SOMmapNode LowXLowY = MapNodes.get(new Tuple<Integer, Integer>(xInt,yInt)), LowXHiY= MapNodes.get(new Tuple<Integer, Integer>(xInt,yIntp1)),
 				 HiXLowY= MapNodes.get(new Tuple<Integer, Integer>(xIntp1,yInt)),  HiXHiY= MapNodes.get(new Tuple<Integer, Integer>(xIntp1,yIntp1));
-		float[] ftrs = (interpFloatAra(interpFloatAra (LowXLowY.ftrs, LowXHiY.ftrs, yInterp) , interpFloatAra (HiXLowY.ftrs, HiXHiY.ftrs,yInterp), xInterp));
-		dataClass res = ((xInterp < .5 ) ? ((yInterp < .5) ? LowXLowY.getLabel() : LowXHiY.getLabel()) : ((yInterp < .5) ? HiXLowY.getLabel() : HiXHiY.getLabel()));
-		
-		dataPoint dp = buildDataPoint(ftrs,-1, false, false);
-		dp.setCorrectScaling();
-		dp.setLabel(res);
-		dp.setMapLoc(locPt);		
-		return dp;
+		try{
+			float[] ftrs = (interpFloatAra(interpFloatAra (LowXLowY.ftrs, LowXHiY.ftrs, yInterp) , interpFloatAra (HiXLowY.ftrs, HiXHiY.ftrs,yInterp), xInterp));
+			dataClass res = ((xInterp < .5 ) ? ((yInterp < .5) ? LowXLowY.getLabel() : LowXHiY.getLabel()) : ((yInterp < .5) ? HiXLowY.getLabel() : HiXHiY.getLabel()));		
+			dataPoint dp = buildDataPoint(ftrs,-1, false, false);
+			dp.setCorrectScaling();
+			dp.setLabel(res);
+			dp.setMapLoc(locPt);		
+			return dp;
+		} catch (Exception e){
+			p.outStr2Scr("Exception triggered in SOMMapData::getDataPointAtLoc : \n"+e.toString() + "\n\tMessage : "+e.getMessage() );
+			return null;
+		}
 	}//getClassAtLoc	
 	//sets colors of background image of map
 	public void setMapImgClrs(){ //mapRndClrImg
@@ -335,18 +339,23 @@ public class SOMMapData {
 	//return a color for a location, where a color is an int array of the first 3 scaled features of the interpolated map nodes
 	private int getDataClrAtLoc(float x, float y){
 		int xInt = PApplet.floor(x), yInt = PApplet.floor(y), xIntp1 = (xInt+1)%mapX, yIntp1 = (yInt+1)%mapY;		//assume torroidal map
-		//p.outStr2Scr("In getDataClrAtLoc : Mouse loc in Nodes : " + x + ","+y+ "\txInt : "+ xInt + " yInt : " + yInt );
+		//p.outStr2Scr("In getDataClrAtLoc :  loc in Nodes : " + x + ","+y+ "\txInt : "+ xInt + " yInt : " + yInt );
 		float xInterp = x - xInt, yInterp = y - yInt;		
 		SOMmapNode LowXLowY = MapNodes.get(new Tuple<Integer, Integer>(xInt,yInt)), LowXHiY= MapNodes.get(new Tuple<Integer, Integer>(xInt,yIntp1)),
 				 HiXLowY= MapNodes.get(new Tuple<Integer, Integer>(xIntp1,yInt)),  HiXHiY= MapNodes.get(new Tuple<Integer, Integer>(xIntp1,yIntp1));
-		float[] ftrs = interpFirstXFloatAraMult(interpFirstXFloatAraMult (LowXLowY.scFtrs, LowXHiY.scFtrs, yInterp,3, 1) , interpFirstXFloatAraMult (HiXLowY.scFtrs, HiXHiY.scFtrs,yInterp,3,1), xInterp,3,255);
-		return (((int)ftrs[0] & 0xff) << 16) + (((int)ftrs[1] & 0xff) << 8) + ((int)ftrs[2] & 0xff);
+		try{
+			float[] ftrs = interpFirstXFloatAraMult(interpFirstXFloatAraMult (LowXLowY.scFtrs, LowXHiY.scFtrs, yInterp,3, 1) , interpFirstXFloatAraMult (HiXLowY.scFtrs, HiXHiY.scFtrs,yInterp,3,1), xInterp,3,255);
+			return (((int)ftrs[0] & 0xff) << 16) + (((int)ftrs[1] & 0xff) << 8) + ((int)ftrs[2] & 0xff);			
+		} catch (Exception e){
+			p.outStr2Scr("Error in getDataClrAtLoc at location : (" + x + ", " + y + ") :\n " + e.toString() + "\t\n Message : "+ e.getMessage());
+			return 0xFFFFFFFF;
+		}
 	}
 	//return a color for a location, where a color here is the color assigned to the training example closest to the location
 	private int getNodeLblClrAtLoc(float xIn, float yIn){
 		float x = (xIn - .5f), y = (yIn - .5f);
 		int xInt = PApplet.floor(x)%mapX, yInt = PApplet.floor(y)%mapY, xIntp1 = (xInt+1)%mapX, yIntp1 = (yInt+1)%mapY;		//assume torroidal map
-		//p.outStr2Scr("In getDataClrAtLoc : Mouse loc in Nodes : " + x + ","+y+ "\txInt : "+ xInt + " yInt : " + yInt );
+		//p.outStr2Scr("In getNodeLblClrAtLoc : Mouse loc in Nodes : " + x + ","+y+ "\txInt : "+ xInt + " yInt : " + yInt );
 		float xInterp = x - xInt, yInterp = y - yInt;//
 //		dataClass res = ((xInterp < .5 ) ? (
 //				(yInterp < .5) ? MapNodes.get(new Tuple<Integer, Integer>(xInt,yInt)).getLabel() : MapNodes.get(new Tuple<Integer, Integer>(xInt,yIntp1)).getLabel()) : 

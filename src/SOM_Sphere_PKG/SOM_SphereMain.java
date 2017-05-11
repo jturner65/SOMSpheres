@@ -50,7 +50,7 @@ public class SOM_SphereMain extends PApplet {
 	//		public int useAllMmnts = 1;		//0 uses only MOM results, 1 uses both mean/var/skew/kurt and MOM	
 			
 	//holds training data
-	public boolean init = false;
+	public boolean init = false; 
 	
 	public final int drawnTrajEditWidth = 10; //TODO make ui component			//width in cntl points of the amount of the drawn trajectory deformed by dragging
 	public final float
@@ -76,16 +76,20 @@ public class SOM_SphereMain extends PApplet {
 	}
 	public void setup(){
 		initOnce();
-		background(bground[0],bground[1],bground[2],bground[3]);	
+		setBkgrnd();	
 	}//setup	
+	
+	public void setBkgrnd(){
+		background(bground[0],bground[1],bground[2],bground[3]);		
+		//add custom background stuff here - TODO move to myDispWindow	
+	}
 	
 	//called once at start of program
 	public void initOnce(){
 		initVisOnce();						//always first
 		sceneIDX = 1;//(flags[show3D] ? 1 : 0);
 		glblStartSimTime = millis() ;
-		glblLastSimTime =  millis();
-		
+		glblLastSimTime =  millis();		
 		numThreadsAvail = Runtime.getRuntime().availableProcessors();
 		pr("# threads : "+ numThreadsAvail);
 		th_exec = Executors.newFixedThreadPool(numThreadsAvail);
@@ -109,22 +113,38 @@ public class SOM_SphereMain extends PApplet {
 	public void draw(){	
 		animCntr = (animCntr + (baseAnimSpd )*animModMult) % maxAnimCntr;						//set animcntr - used only to animate visuals		
 		//cyclModCmp = (drawCount % ((mySideBarMenu)dispWinFrames[dispMenuIDX]).guiObjs[((mySideBarMenu)dispWinFrames[dispMenuIDX]).gIDX_cycModDraw].valAsInt() == 0);
-		pushMatrix();pushStyle();
-		drawSetup();																//initialize camera, lights and scene orientation and set up eye movement
 		//if ((!cyclModCmp) || (flags[runSim])) {drawCount++;}						//needed to stop draw update so that pausing sim retains animation positions			
-		if ((flags[runSim])) {drawCount++;}											//needed to stop draw update so that pausing sim retains animation positions			
+		//simulation section
 		glblStartSimTime = millis();
 		float modAmtSec = (glblStartSimTime - glblLastSimTime)/1000.0f;
 		glblLastSimTime = millis();
 		if(flags[runSim] ){
+			//outStr2Scr("Sim Time elapsed in seconds : " + modAmtSec);
 			//run simulation
+			drawCount++;									//needed to stop draw update so that pausing sim retains animation positions	
+			for(int i =1; i<numDispWins; ++i){if((isShowingWindow(i)) && (dispWinFrames[i].getFlags(myDispWindow.isRunnable))){dispWinFrames[i].simulate(modAmtSec);}}
+			//if(flags[singleStep]){flags[runSim]=false;}
+			simCycles++;
 		}		//play in current window
-		background(bground[0],bground[1],bground[2],bground[3]);				//if refreshing screen, this clears screen, sets background
+
+		//drawing section
+		pushMatrix();pushStyle();
+		drawSetup();																//initialize camera, lights and scene orientation and set up eye movement
 		translate(focusTar.x,focusTar.y,focusTar.z);								//focus location center of screen					
-		if((curFocusWin == -1) || (dispWinIs3D[curFocusWin])){		draw3D_solve3D();} 
-		//else {														draw3D_solve2D();}
-		buildCanvas();		
+		if((curFocusWin == -1) || (dispWinIs3D[curFocusWin])){		
+			setBkgrnd();
+			draw3D_solve3D();
+			drawBoxBnds();
+//			c.buildCanvas();
+//			c.drawMseEdge();
+//			popStyle();popMatrix(); 
+		}	
+			//2d windows paint window box so background is always cleared
+		c.buildCanvas();
+		c.drawMseEdge();
 		popStyle();popMatrix(); 
+		for(int i =1; i<numDispWins; ++i){if (isShowingWindow(i) && !(dispWinFrames[i].getFlags(myDispWindow.is3DWin))){dispWinFrames[i].draw2D();}}
+		
 		drawUI();																	//draw UI overlay on top of rendered results			
 		if (flags[saveAnim]) {	savePic();}
 		updateConsoleStrs();
@@ -140,14 +160,16 @@ public class SOM_SphereMain extends PApplet {
 	}
 	
 	public void draw3D_solve3D(){
-	//	if (cyclModCmp) {															//if drawing this frame, draw results of calculations								
-			//background(bground[0],bground[1],bground[2],bground[3]);				//if refreshing screen, this clears screen, sets background
-			pushMatrix();pushStyle();
-			for(int i =1; i<numDispWins; ++i){if((isShowingWindow(i)) && (dispWinFrames[i].getFlags(myDispWindow.is3DWin))){dispWinFrames[i].draw(myPoint._add(sceneCtrVals[sceneIDX],focusTar));}}
-			popStyle();popMatrix();
-			drawAxes(100,3, new myPoint(-c.viewDimW/2.0f+40,0.0f,0.0f), 200, false); 		//for visualisation purposes and to show movement and location in otherwise empty scene
-	//	}
-		if(canShow3DBox[this.curFocusWin]) {drawBoxBnds();}
+		pushMatrix();pushStyle();
+		for(int i =1; i<numDispWins; ++i){
+			if((isShowingWindow(i)) && (dispWinFrames[i].getFlags(myDispWindow.is3DWin))){
+				dispWinFrames[i].draw3D(myPoint._add(sceneCtrVals[sceneIDX],focusTar));
+			}
+		}
+		popStyle();popMatrix();
+		//fixed xyz rgb axes for visualisation purposes and to show movement and location in otherwise empty scene
+		drawAxes(100,3, new myPoint(-c.viewDimW/2.0f+40,0.0f,0.0f), 200, false); 		
+		//if((canShow3DBox[this.curFocusWin]) && (flags[clearBKG])) {drawBoxBnds();}
 	}
 	
 	//		public void draw3D_solve2D(){
@@ -160,19 +182,19 @@ public class SOM_SphereMain extends PApplet {
 	//			}
 	//		}		
 	
-	public void buildCanvas(){
-		c.buildCanvas();
-		c.drawMseEdge();
-	}
+//	public void buildCanvas(){
+//		c.buildCanvas();
+//		c.drawMseEdge();
+//	}
 	
 	//if should show problem # i
 	public boolean isShowingWindow(int i){return flags[(i+this.showUIMenu)];}//showUIMenu is first flag of window showing flags
 	public void drawUI(){					
-		for(int i =1; i<numDispWins; ++i){if ( !(dispWinFrames[i].getFlags(myDispWindow.is3DWin))){dispWinFrames[i].draw(sceneCtrVals[sceneIDX]);}}
+		//for(int i =1; i<numDispWins; ++i){if ( !(dispWinFrames[i].getFlags(myDispWindow.is3DWin))){dispWinFrames[i].draw(sceneCtrVals[sceneIDX]);}}
 		//dispWinFrames[0].draw(sceneCtrVals[sceneIDX]);
 		for(int i =1; i<numDispWins; ++i){dispWinFrames[i].drawHeader();}
 		//menu
-		dispWinFrames[0].draw(sceneCtrVals[sceneIDX]);
+		dispWinFrames[0].draw2D();
 		dispWinFrames[0].drawHeader();
 		drawOnScreenData();				//debug and on-screen data
 		hint(PConstants.DISABLE_DEPTH_TEST);
@@ -396,10 +418,10 @@ public class SOM_SphereMain extends PApplet {
 	}//initDispWins
 	
 	//get the ui rect values of the "master" ui region (another window) -> this is so ui objects of one window can be made, clicked, and shown displaced from those of the parent windwo
-	public double[] getUIRectVals(int idx){
+	public float[] getUIRectVals(int idx){
 		//this.pr("In getUIRectVals for idx : " + idx);
 		switch(idx){
-		case dispMenuIDX 		: {return new double[0];}			//idx 0 is parent menu sidebar
+		case dispMenuIDX 		: {return new float[0];}			//idx 0 is parent menu sidebar
 		case dispAnimResIDX 	: {return dispWinFrames[dispMenuIDX].uiClkCoords;}
 		case dispSOMMapIDX 	: {	return dispWinFrames[dispAnimResIDX].uiClkCoords;}
 		default :  return dispWinFrames[dispMenuIDX].uiClkCoords;
@@ -763,10 +785,19 @@ public class SOM_SphereMain extends PApplet {
 	}		
 	//drawsInitial setup for each draw
 	public void drawSetup(){			
-		camera(camVals[0],camVals[1],camVals[2],camVals[3],camVals[4],camVals[5],camVals[6],camVals[7],camVals[8]);       // sets a standard perspective
-		//if(this.flags[this.debugMode]){outStr2Scr("rx :  " + rx + " ry : " + ry + " dz : " + dz);}
-		translate((float)width/2.0f,(float)height/2.0f,(float)dz); // puts origin of model at screen center and moves forward/away by dz
-	    setCamOrient();
+		perspective(PI/3.0f, (1.0f*width)/(1.0f*height), .5f, camVals[2]*100.0f);
+		dispWinFrames[curFocusWin].setCamera(camVals, rx,ry,dz);
+		
+//		if(flags[rideBoid]){ 
+//			((myBoids3DWin) dispWinFrames[disp3DResIDX]).setBoidCam(rx,ry,dz);
+//		} else {
+//			camera(camVals[0],camVals[1],camVals[2],camVals[3],camVals[4],camVals[5],camVals[6],camVals[7],camVals[8]);      
+//			//if(this.flags[this.debugMode]){outStr2Scr("rx :  " + rx + " ry : " + ry + " dz : " + dz);}
+//			// puts origin of all drawn objects at screen center and moves forward/away by dz
+//			translate(camVals[0],camVals[1],(float)dz); 
+//		    setCamOrient();
+//		}
+
 	    turnOnLights();
 	}//drawSetup	
 	//turn on lights for this sketch
@@ -1245,7 +1276,8 @@ public class SOM_SphereMain extends PApplet {
 			translate(P.x,P.y,0); 
 			circle(0,0,r,r);				
 		}
-		popStyle(); popMatrix();} // render sphere of radius r and center P)		
+		popStyle(); popMatrix();
+	} // render sphere of radius r and center P)		
 
 //		public void showx(myPointf P, float rad, int fclr, int sclr, int tclr, String txt) {
 //			pushMatrix(); pushStyle(); 

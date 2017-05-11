@@ -326,7 +326,12 @@ public class mySOMMapUIWin extends myDispWindow {
 	@Override
 	public void initDrwnTrajIndiv(){}
 	@Override
-	protected void playMe() {}	
+	public void drawCustMenuObjs(){}
+	@Override
+	protected void simMe(float modAmtSec) {	}
+	//set camera to custom location - only used if dispFlag set
+	@Override
+	protected void setCameraIndiv(float[] camVals, float rx, float ry, float dz){}
 	@Override
 	protected void stopMe() {}	
 	@Override

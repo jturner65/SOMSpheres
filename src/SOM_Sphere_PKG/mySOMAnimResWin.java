@@ -251,7 +251,13 @@ public class mySOMAnimResWin extends myDispWindow {
 	}//drawMe
 	
 	@Override
-	protected void playMe() {	}//only called 1 time
+	public void drawCustMenuObjs(){}
+	@Override
+	protected void simMe(float modAmtSec) {	}
+	//set camera to custom location - only used if dispFlag set
+	@Override
+	protected void setCameraIndiv(float[] camVals, float rx, float ry, float dz){}
+
 	@Override
 	protected void stopMe() {	}	
 	
